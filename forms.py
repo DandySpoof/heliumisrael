@@ -46,7 +46,7 @@ class CreatePostForm(FlaskForm):
 	submit = SubmitField("Submit Post")
 
 
-class NewUser(UserMixin, RedirectForm):
+class NewUser(UserMixin, FlaskForm):
 	name = StringField("Name:*", validators=[DataRequired("Please enter your name")])
 	email = EmailField("Email:*", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
@@ -55,7 +55,7 @@ class NewUser(UserMixin, RedirectForm):
 	submit = SubmitField("Register")
 
 
-class Login(RedirectForm):
+class Login(FlaskForm):
 	email = EmailField("Email:", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
 	password = PasswordField("Password:", validators=[DataRequired("Please enter your password")])
