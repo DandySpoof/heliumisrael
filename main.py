@@ -230,14 +230,15 @@ def wallet(address):
 	wallet = Wallet.query.filter_by(address=address).first()
 	miners = wallet.miners
 	print(miners)
-	# .order_by(Miner.added.desc()).limit(10).all()
 
 	return render_template("wallet.html", miners=miners, wallet=wallet)
 
 
-@app.route("/test")
-def test():
-	return render_template("test.html")
+@app.route("/register", methods=["GET", "POST"])
+def register():
+	form = NewUser()
+
+	return render_template("register.html", form=form)
 
 
 if __name__ == "__main__":

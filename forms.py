@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask import request, url_for, redirect
 from wtforms import StringField, SubmitField, PasswordField, EmailField, HiddenField
 from wtforms.validators import DataRequired, URL, Email
 from flask_ckeditor import CKEditorField
@@ -26,7 +27,7 @@ class RedirectForm(FlaskForm):
     next = HiddenField()
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        FlaskForm.__init__(self, *args, **kwargs)
         if not self.next.data:
             self.next.data = get_redirect_target() or ''
 
@@ -46,7 +47,7 @@ class CreatePostForm(FlaskForm):
 	submit = SubmitField("Submit Post")
 
 
-class NewUser(UserMixin, FlaskForm):
+class NewUser(UserMixin, RedirectForm):
 	name = StringField("Name:*", validators=[DataRequired("Please enter your name")])
 	email = EmailField("Email:*", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
@@ -55,7 +56,7 @@ class NewUser(UserMixin, FlaskForm):
 	submit = SubmitField("Register")
 
 
-class Login(FlaskForm):
+class Login(RedirectForm):
 	email = EmailField("Email:", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
 	password = PasswordField("Password:", validators=[DataRequired("Please enter your password")])
