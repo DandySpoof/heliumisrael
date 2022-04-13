@@ -9,11 +9,10 @@ from urlparse2 import urlparse2
 
 
 def is_safe_url(target):
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url, target))
+    ref_url = urlparse2.urlparse(request.host_url)
+    test_url = urlparse2.urlparse(urlparse2.urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
            ref_url.netloc == test_url.netloc
-
 
 def get_redirect_target():
     for target in request.args.get('next'), request.referrer:
@@ -24,18 +23,20 @@ def get_redirect_target():
 
 
 class RedirectForm(FlaskForm):
-    next = HiddenField()
+	next = HiddenField()
 
-    def __init__(self, *args, **kwargs):
-        FlaskForm.__init__(self, *args, **kwargs)
-        if not self.next.data:
-            self.next.data = get_redirect_target() or ''
+	def __init__(self, *args, **kwargs):
+		FlaskForm.__init__(self, *args, **kwargs)
+		if not self.next.data:
+			self.next.data = get_redirect_target() or ''
 
-    def redirect(self, endpoint='home', **values):
-        if is_safe_url(self.next.data):
-            return redirect(self.next.data)
-        target = get_redirect_target()
-        return redirect(target or url_for(endpoint, **values))
+	def redirect(self, endpoint="home", **values):
+		print(endpoint)
+		if is_safe_url(self.next.data):
+			print("is safe - true")
+			return redirect(self.next.data)
+		target = get_redirect_target()
+		return redirect(target or url_for(endpoint, **values))
 
 
 ##WTForm

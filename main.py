@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from forms import CreatePostForm, NewUser, Login, CommentForm
 from flask_gravatar import Gravatar
+from random import randint
 
 # --- CREATE and CONFING Flask APP
 app = Flask(__name__)
@@ -237,6 +238,29 @@ def wallet(address):
 @app.route("/register", methods=["GET", "POST"])
 def register():
 	form = NewUser()
+
+	if form.validate_on_submit():
+		detected_user = User.query.filter_by(email=form.email.data).first()
+		hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
+
+		if detected_user == None:
+			new_user = User(
+				name=form.name.data,
+				phone=form.phone.data,
+				email=form.email.data,
+				password=hash)
+
+			db.session.add(new_user)
+			db.session.commit()
+
+			login_user(new_user)
+			# flash("Login successfully")
+			print("Login successfully")
+
+			return form.redirect('home')
+
+		flash("This email is already registered. Try logging in instead.")
+		form.redirect("login")
 
 	return render_template("register.html", form=form)
 
