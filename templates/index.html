@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Helium Israel{% endblock title %}
+
+
+{% block h_image %}
+<header class="masthead" style="background-image: url({{ url_for('static', filename='img/helium-map.png') }}) ">
+{% endblock h_image %}
+
+
+{% block h_title %}
+<h1>Helium Israel</h1>
+<span class="subheading">Community... Group... You</span>
+{% endblock h_title %}
+
+
+{% block content %}
+<div class="container">
+    <div class="text-center">
+        <h2 style="color: #084594;">HNT Oracle Price - {{ oracle_price }}</h2>
+    </div>
+    <br>
+    <div class="table-responsive shadow-lg p-3 mb-5 bg-body rounded">
+
+        <table name="table" data-toggle="table" data-search="true" data-pagination="true" data-show-columns="true">
+            <thead class="table-headers">
+            <th data-field="name" data-valign="middle" data-sortable="true">Name</th>
+            <th data-field="city" data-valign="middle" data-sortable="true">City</th>
+            <th data-field="earnings-7" data-valign="middle" data-sortable="true">Earning 7<br>days</th>
+            <th data-field="earnings-30" data-valign="middle" data-sortable="true">Earning 30<br>days</th>
+            <th data-field="added" data-valign="middle" data-sortable="true">Added<br>date</th>
+            <th data-field="other-miners" data-valign="middle" data-sortable="true">Miners<br>in Wallet</th>
+            </thead>
+            <tbody>
+            {% for miner in miners %}
+            <tr>
+                <td class="align-middle"><a target="_blank" style="color:#4087ea; font-family: 'Ubuntu', sans-serif; font-weight:700"
+                                            href="https://explorer.helium.com/hotspots/{{ miner.address }}">
+                    {{ miner.name | replace("-", " ") | title() }}</a></td>
+                <td class="align-middle">{{ miner.city }}</td>
+                <td class="align-middle">{{ miner.earnings_7|round(4) }}</td>
+                <td class="align-middle">{{ miner.earnings_30|round(4) }}</td>
+                {% set list1 = miner.added|string() %}
+                <td class="align-middle">{{ list1[:10] }}</td>
+                {% set wallet_address = miner.wallet_address %}
+                <td class="align-middle"><a href="{{ url_for('wallet', address=wallet_address) }}"
+                                            style="color:#4087ea">{{ other_miners(wallet_address) }} miners</a></td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}
