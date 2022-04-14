@@ -205,6 +205,7 @@ def get_miners_data():
 # get_miners_data()
 
 
+
 ## Construct APP structure
 @app.route("/")
 def home():
@@ -263,6 +264,7 @@ def register():
 		form.redirect("login")
 
 	return render_template("register.html", form=form)
+
 
 
 if __name__ == "__main__":
