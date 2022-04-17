@@ -72,6 +72,7 @@ class Wallet(db.Model):
 	__tablename__ = "wallets"
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
 	address = db.Column(db.Text, unique=True, nullable=False)
+	balance = db.Column(db.Float)
 
 	miners = relationship("Miner", back_populates="wallet")
 
@@ -81,7 +82,7 @@ class Wallet(db.Model):
 	def __repr__(self):
 		return f"Wallet: {self.address}"
 
-# db.create_all()
+db.create_all()
 
 
 class Miner(db.Model):
@@ -105,7 +106,7 @@ class Miner(db.Model):
 
 
 # Line below only required once, when creating DB.
-# db.create_all()
+db.create_all()
 
 def get_miners_data():
 	headers = {
@@ -147,7 +148,7 @@ def get_miners_data():
 		response = rq.get(url, headers=headers, params=parameters)
 		response.raise_for_status()
 		data_7 = response.json()
-		earining_7 = int(data_7["data"]['sum']) / 100000000
+		earining_7 = float(data_7["data"]['sum']) / 100000000
 		print(earining_7)
 		sleep(2)
 
@@ -159,7 +160,7 @@ def get_miners_data():
 		response = rq.get(url, headers=headers, params=parameters)
 		response.raise_for_status()
 		data_30 = response.json()
-		earining_30 = int(data_30["data"]['sum']) / 100000000
+		earining_30 = float(data_30["data"]['sum']) / 100000000
 		print(earining_30)
 		sleep(2)
 
@@ -197,12 +198,16 @@ def get_miners_data():
 		if Wallet.query.filter_by(address=m["owner"]).first() == None:
 			wallet = Wallet(
 				address=m["owner"],
+				balance=float(m["balance"]) / 100000000
 			)
 			db.session.add(wallet)
+		else:
+			wallet = Wallet.query.filter_by(address=m["owner"]).first()
+			wallet.balance = float(m["balance"]) / 100000000
 		db.session.commit()
 
 
-# get_miners_data()
+get_miners_data()
 
 
 
