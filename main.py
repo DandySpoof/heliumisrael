@@ -198,12 +198,9 @@ def get_miners_data():
 		if Wallet.query.filter_by(address=m["owner"]).first() == None:
 			wallet = Wallet(
 				address=m["owner"],
-				balance=float(m["balance"]) / 100000000
 			)
 			db.session.add(wallet)
-		else:
-			wallet = Wallet.query.filter_by(address=m["owner"]).first()
-			wallet.balance = float(m["balance"]) / 100000000
+
 		db.session.commit()
 
 
