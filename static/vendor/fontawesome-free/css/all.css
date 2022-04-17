@@ -3288,6 +3288,10 @@ readers do not read off random characters that represent icons */
 .fa-route:before {
   content: "\f4d7"; }
 
+.fa-router:before {
+    content: "\f8da"
+}
+
 .fa-rss:before {
   content: "\f09e"; }
 

@@ -1,5 +1,9 @@
+from datetime import datetime, timedelta
+from random import randint
 import requests as rq
+from time import sleep
 import os
+
 from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
@@ -10,12 +14,9 @@ from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
-from time import sleep
-from datetime import datetime, timedelta
 from dateutil import parser
 from forms import CreatePostForm, NewUser, Login, CommentForm
 from flask_gravatar import Gravatar
-from random import randint
 
 # --- CREATE and CONFING Flask APP
 app = Flask(__name__)
@@ -121,7 +122,6 @@ def get_miners_data():
 	}
 
 	url = "https://api.helium.io/v1/hotspots/location/box"
-	# url = "https://api.helium.io/v1/hotspots/11sP9aF7QWkA5hYnnFkcyKt5wxkfW4UqaesG5WD8fzirpawB2v9"
 	response = rq.get(url, headers=headers, params=israel_box)
 	response.raise_for_status()
 	data = response.json()
@@ -135,7 +135,7 @@ def get_miners_data():
 
 	count = 0
 	for m in miners:
-		sleep(1)
+		sleep(2)
 		count += 1
 		print(f"{count} - {m['name']}")
 
@@ -149,7 +149,7 @@ def get_miners_data():
 		data_7 = response.json()
 		earining_7 = int(data_7["data"]['sum']) / 100000000
 		print(earining_7)
-		sleep(1)
+		sleep(2)
 
 		url = f"https://api.helium.io/v1/hotspots/{m['address']}/rewards/sum"
 		parameters = {
@@ -161,7 +161,7 @@ def get_miners_data():
 		data_30 = response.json()
 		earining_30 = int(data_30["data"]['sum']) / 100000000
 		print(earining_30)
-		sleep(1)
+		sleep(2)
 
 		if Miner.query.filter_by(name=m['name']).first() == None:
 			miner = Miner(
@@ -216,15 +216,18 @@ def home():
 	print(hnt)
 
 	def other_miners(wallet_address):
+		""" This function checks if an owner (wallet) of a miner own other miners and returns the count of miners
+		associated with this wallet. This function is activated from within the front-end templae."""
 		wallet = Wallet.query.filter_by(address=wallet_address).first()
-		# print(wallet)
-		miners_count = len(wallet.miners)
-		# print(miners_count)
-		return miners_count
+		owner_miners_count = len(wallet.miners)
+		return owner_miners_count
 
 	miners = Miner.query.filter_by(online="online").all()
+	total_online_miners = len(miners)
+	total_wallets_count = len(Wallet.query.all())
 
-	return render_template("index.html", oracle_price=hnt, miners=miners, other_miners=other_miners)
+	return render_template("index.html", oracle_price=hnt, miners=miners, other_miners=other_miners,
+	                       miners_count=total_online_miners, wallets=total_wallets_count)
 
 
 @app.route("/wallet/<address>")

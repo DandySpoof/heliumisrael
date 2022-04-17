@@ -5782,6 +5782,10 @@
 	content: "\f555"
 }
 
+.fa-router:before {
+    content: "\f8da"
+}
+
 .fa-warehouse:before {
 	content: "\f494"
 }
