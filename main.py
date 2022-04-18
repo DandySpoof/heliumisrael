@@ -126,8 +126,14 @@ def get_miners_data():
 	}
 
 	url = "https://api.helium.io/v1/hotspots/location/box"
-	response = rq.get(url, headers=headers, params=israel_box)
-	response.raise_for_status()
+	try:
+		response = rq.get(url, headers=headers, params=israel_box)
+		response.raise_for_status()
+	except Exception as ex:
+		print(ex)
+		sleep(60)
+		get_miners_data()
+
 	data = response.json()
 
 	miners = data["data"]
@@ -148,8 +154,19 @@ def get_miners_data():
 			"max_time": time.isoformat(),
 			"min_time": last_7_days.isoformat(),
 		}
-		response = rq.get(url, headers=headers, params=parameters)
-		response.raise_for_status()
+		try:
+			response = rq.get(url, headers=headers, params=parameters)
+			response.raise_for_status()
+		except Exception as ex:
+			print(ex)
+			sleep(15)
+			try:
+				response = rq.get(url, headers=headers, params=parameters)
+				response.raise_for_status()
+			except Exception as ex:
+				print(ex)
+				continue
+
 		data_7 = response.json()
 		earining_7 = float(data_7["data"]['sum']) / 100000000
 		print(earining_7)
@@ -160,8 +177,20 @@ def get_miners_data():
 			"max_time": time.isoformat(),
 			"min_time": last_30_days.isoformat(),
 		}
-		response = rq.get(url, headers=headers, params=parameters)
-		response.raise_for_status()
+		
+		try:
+			response = rq.get(url, headers=headers, params=parameters)
+			response.raise_for_status()
+		except Exception as ex:
+			print(ex)
+			sleep(15)
+			try:
+				response = rq.get(url, headers=headers, params=parameters)
+				response.raise_for_status()
+			except Exception as ex:
+				print(ex)
+				continue
+			
 		data_30 = response.json()
 		earining_30 = float(data_30["data"]['sum']) / 100000000
 		print(earining_30)
@@ -203,8 +232,12 @@ def get_miners_data():
 				address=m["owner"],
 			)
 			db.session.add(wallet)
-
-		db.session.commit()
+		try:
+			db.session.commit()
+		except Exception as ex:
+			print(ex)
+			print(ex.args)
+			continue
 
 
 # get_miners_data()
