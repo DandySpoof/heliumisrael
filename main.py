@@ -22,8 +22,9 @@ from flask_gravatar import Gravatar
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 
-#CONNECT and CONFING DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///helium-israel.db").replace("postgres://", "postgresql://", 1)
+# CONNECT and CONFING DB
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///helium-israel.db").replace(
+	"postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -40,30 +41,31 @@ gravatar = Gravatar(app,
                     use_ssl=False,
                     base_url=None)
 
-
 ## ESTABLISH USER SESSIONS MANAGMENT
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+	return User.query.get(int(user_id))
 
 
 ## Construct miners data base
 
 class User(UserMixin, db.Model):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    phone = db.Column(db.Text)
-    email = db.Column(db.String(70), unique=True, nullable=False)
-    password = db.Column(db.Text, nullable=False)
+	__tablename__ = "users"
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(50), nullable=False)
+	phone = db.Column(db.Text)
+	email = db.Column(db.String(70), unique=True, nullable=False)
+	password = db.Column(db.Text, nullable=False)
 
-    wallets = relationship("Wallet", back_populates="user")
+	wallets = relationship("Wallet", back_populates="user")
 
-    def __repr__(self):
-	    return f"User ID: {self.id}"
+	def __repr__(self):
+		return f"User ID: {self.id}"
+
 
 # db.create_all()
 
@@ -72,7 +74,7 @@ class Wallet(db.Model):
 	__tablename__ = "wallets"
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
 	address = db.Column(db.Text, unique=True, nullable=False)
-	balance = db.Column(db.Float)
+	# balance = db.Column(db.Float)
 
 	miners = relationship("Miner", back_populates="wallet")
 
@@ -82,7 +84,8 @@ class Wallet(db.Model):
 	def __repr__(self):
 		return f"Wallet: {self.address}"
 
-db.create_all()
+
+# db.create_all()
 
 
 class Miner(db.Model):
@@ -106,7 +109,7 @@ class Miner(db.Model):
 
 
 # Line below only required once, when creating DB.
-db.create_all()
+# db.create_all()
 
 def get_miners_data():
 	headers = {
@@ -204,32 +207,39 @@ def get_miners_data():
 		db.session.commit()
 
 
-get_miners_data()
+# get_miners_data()
 
-
-
-## Construct APP structure
-@app.route("/")
-def home():
+def get_oracle_price():
 	response = rq.get("https://api.helium.io/v1/oracle/prices/current")
 	response = response.json()
 	price = str(response["data"]["price"])
 	hnt = f"${price[:2]}.{price[2:4]}"
+	return hnt
+
+## Construct APP structure
+@app.route("/")
+def home():
+	hnt = get_oracle_price()
 	print(hnt)
 
 	def other_miners(wallet_address):
-		""" This function checks if an owner (wallet) of a miner own other miners and returns the count of miners
-		associated with this wallet. This function is activated from within the front-end templae."""
+		""" This function returns the count of miners for the tested wallet .
+		This function is activated from within the front-end templae."""
 		wallet = Wallet.query.filter_by(address=wallet_address).first()
 		owner_miners_count = len(wallet.miners)
 		return owner_miners_count
+
+	seven_days_backward = datetime.now() - timedelta(days=7)
+	all_miners = Miner.query.all()
+	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward]
+	latest_miners_count = len(latest_miners)
 
 	miners = Miner.query.filter_by(online="online").all()
 	total_online_miners = len(miners)
 	total_wallets_count = len(Wallet.query.all())
 
 	return render_template("index.html", oracle_price=hnt, miners=miners, other_miners=other_miners,
-	                       miners_count=total_online_miners, wallets=total_wallets_count)
+	                       miners_count=total_online_miners, t_wallets=total_wallets_count, latest=latest_miners_count)
 
 
 @app.route("/wallet/<address>")
@@ -239,6 +249,55 @@ def wallet(address):
 	print(miners)
 
 	return render_template("wallet.html", miners=miners, wallet=wallet)
+
+
+@app.route("/wallets")
+def wallets():
+	wallets = Wallet.query.all()
+	hnt = get_oracle_price()
+
+	def other_miners(wallet_address):
+		""" This function returns the count of miners for the tested wallet .
+		This function is activated from within the front-end templae."""
+		wallet = Wallet.query.filter_by(address=wallet_address).first()
+		owner_miners_count = len(wallet.miners)
+		return owner_miners_count
+
+	seven_days_backward = datetime.now() - timedelta(days=7)
+	all_miners = Miner.query.all()
+	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward]
+	latest_miners_count = len(latest_miners)
+
+	miners = Miner.query.filter_by(online="online").all()
+	total_online_miners = len(miners)
+	total_wallets_count = len(Wallet.query.all())
+
+	return render_template("wallets.html", oracle_price=hnt, wallets=wallets, other_miners=other_miners, t_wallets=total_wallets_count,
+	                       miners_count=total_online_miners, latest=latest_miners_count)
+
+
+@app.route("/latest")
+def latest_miners():
+	hnt = get_oracle_price()
+
+	def other_miners(wallet_address):
+		""" This function returns the count of miners for the tested wallet .
+		This function is activated from within the front-end templae."""
+		wallet = Wallet.query.filter_by(address=wallet_address).first()
+		owner_miners_count = len(wallet.miners)
+		return owner_miners_count
+
+	miners = Miner.query.filter_by(online="online").all()
+	total_online_miners = len(miners)
+	total_wallets_count = len(Wallet.query.all())
+
+	seven_days_backward = datetime.now() - timedelta(days=7)
+	all_miners = Miner.query.all()
+	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward]
+	latest_miners_count = len(latest_miners)
+
+	return render_template("latest.html", oracle_price=hnt, miners=latest_miners, other_miners=other_miners,
+	                       miners_count=total_online_miners, t_wallets=total_wallets_count, latest=latest_miners_count)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -269,7 +328,6 @@ def register():
 		form.redirect("login")
 
 	return render_template("register.html", form=form)
-
 
 
 if __name__ == "__main__":

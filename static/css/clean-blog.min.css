@@ -548,6 +548,7 @@ footer .copyright {
 
 /* HomePage Counter */
 
+
 #homepage-counter {
     margin: 30px auto;
 }
@@ -560,10 +561,15 @@ footer .copyright {
     height: 100px;
     border-radius: 5px;
     transition: .3s linear all;
-  }
+}
+
+.selected {
+    box-shadow: 4px 4px 20px #06113C;
+    transition: .1s linear all;
+}
 
 .card-counter:hover {
-    box-shadow: 4px 4px 20px #7b7373;
+    box-shadow: 4px 4px 20px #06113C;
     transition: .1s linear all;
 }
 
@@ -619,3 +625,6 @@ footer .copyright {
     font-size: 18px;
 }
 
+#wallet-special {
+    font-size: 22px;
+}

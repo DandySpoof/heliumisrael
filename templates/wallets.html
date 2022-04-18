@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Helium Israel{% endblock title %}
+
+
+{% block h_image %}
+<header class="masthead" style="background-image: url({{ url_for('static', filename='img/helium-map.png') }}) ">
+    {% endblock h_image %}
+
+
+    {% block h_title %}
+    <h1>Helium Israel</h1>
+    <span class="subheading">Community... Group... You</span>
+    {% endblock h_title %}
+
+
+    {% block content %}
+    <div class="container">
+
+        <div class="container" id="homepage-counter">
+            <div class="row">
+
+                <div class="col-md-3">
+                    <a href="{{ url_for('home') }}">
+                    <div class="card-counter danger">
+                        <i class="fa fa-wifi"></i>
+                        <span class="count-numbers">{{ miners_count }}</span>
+                        <span class="count-name">Miners (online)</span>
+                    </div>
+                    </a>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card-counter success selected">
+                        <i class="fa fa-wallet"></i>
+                        <span class="count-numbers">{{ t_wallets }}</span>
+                        <span class="count-name">Wallets</span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <a href="{{ url_for('latest_miners') }}">
+                    <div class="card-counter info">
+                        <i class="fa fa-star"></i>
+                        <span class="count-numbers">{{ latest }}</span>
+                        <span class="count-name">New Miners (7d)</span>
+                    </div>
+                        </a>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card-counter primary">
+                        <i class="fa fa-dollar-sign"></i>
+                        <span class="count-numbers">{{ oracle_price }}</span>
+                        <span class="count-name">Oracle Price</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="table-responsive shadow-lg p-3 mb-5 bg-body rounded">
+
+            <table name="table" data-toggle="table" data-search="true" data-pagination="true" data-show-columns="true">
+                <thead class="table-headers">
+                <th data-field="wallet" data-valign="middle" data-sortable="true">Wallet Address</th>
+                <th data-field="other-miners" data-valign="middle" data-sortable="true">Miners in Wallet</th>
+                </thead>
+                <tbody>
+                {% for wallet in wallets %}
+                <tr>
+                    {% set wallet_address = wallet.address %}
+                    <td class="align-middle"><a
+                                                style="color:#4087ea; font-family: 'Ubuntu', sans-serif; font-weight:700"
+                                                href="{{ url_for('wallet', address=wallet_address) }}">{{wallet_address}}</a>
+                    </td>
+
+                    <td class="align-middle"><a href="{{ url_for('wallet', address=wallet_address) }}"
+                                                style="color:#4087ea">{{ other_miners(wallet_address) }} miners</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endblock content %}
