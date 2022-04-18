@@ -633,3 +633,7 @@ footer .copyright {
 #wallet-special {
     font-size: 22px;
 }
+
+#gravatar {
+    border-radius: 50%;
+}

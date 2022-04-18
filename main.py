@@ -33,7 +33,7 @@ bootstrap = Bootstrap5(app)
 
 ## CONNECTING AND CONFIGURING GRAVATAR
 gravatar = Gravatar(app,
-                    size=100,
+                    size=40,
                     rating='g',
                     default='retro',
                     force_default=False,
@@ -217,7 +217,7 @@ def get_miners_data():
 			print(miner)
 			print(f"{m['name']} - whole record was added to db\n-------------------------------------------------->")
 		else:
-			break  #USE this break to only update the db with new miners
+			# break  #USE this break to only update the db with new miners
 			miner = Miner(
 				city=m['geocode']['long_city'],
 				country=m['geocode']['long_country'],
@@ -243,7 +243,7 @@ def get_miners_data():
 			continue
 
 
-get_miners_data()
+# get_miners_data()
 
 def get_oracle_price():
 	response = rq.get("https://api.helium.io/v1/oracle/prices/current")
