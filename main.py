@@ -15,7 +15,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
 from dateutil import parser
-from forms import CreatePostForm, NewUser, Login, CommentForm
+from forms import CreatePostForm, NewUser, LoginForm, CommentForm
 from flask_gravatar import Gravatar
 
 # --- CREATE and CONFING Flask APP
@@ -41,9 +41,12 @@ gravatar = Gravatar(app,
                     use_ssl=False,
                     base_url=None)
 
+
 ## ESTABLISH USER SESSIONS MANAGMENT
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login"
+login_manager.login_message = u"To view this page, you must login first"
 
 
 @login_manager.user_loader
@@ -214,7 +217,7 @@ def get_miners_data():
 			print(miner)
 			print(f"{m['name']} - whole record was added to db\n-------------------------------------------------->")
 		else:
-			# break  #USE this break to only update the db with new miners
+			break  #USE this break to only update the db with new miners
 			miner = Miner(
 				city=m['geocode']['long_city'],
 				country=m['geocode']['long_country'],
@@ -240,7 +243,7 @@ def get_miners_data():
 			continue
 
 
-# get_miners_data()
+get_miners_data()
 
 def get_oracle_price():
 	response = rq.get("https://api.helium.io/v1/oracle/prices/current")
@@ -332,6 +335,23 @@ def latest_miners():
 	return render_template("latest.html", oracle_price=hnt, miners=latest_miners, other_miners=other_miners,
 	                       miners_count=total_online_miners, t_wallets=total_wallets_count, latest=latest_miners_count)
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+	form = LoginForm()
+
+	if form.validate_on_submit():
+		user = User.query.filter_by(email=form.email.data).first()
+
+		if user != None:
+			if check_password_hash(user.password, form.password.data):
+				login_user(user)
+				return form.redirect("/")
+
+			flash("Email or Password is incorrect. Please try again")
+
+		flash("Email or Password is incorrect. Please try again")
+
+	return render_template("login.html", form=form)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -355,13 +375,28 @@ def register():
 			# flash("Login successfully")
 			print("Login successfully")
 
-			return form.redirect('home')
+			return redirect(url_for("home"))
 
 		flash("This email is already registered. Try logging in instead.")
-		form.redirect("login")
+		return redirect(url_for("login"))
 
 	return render_template("register.html", form=form)
 
+@app.route("/logout")
+@login_required
+def logout():
+	logout_user()
+	return redirect(url_for("home"))
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+	print(current_user.name)
+	return "<p> My dashboard</p>"
+
+@app.route("/contact")
+def contact():
+	return "<p> contact page</p>"
 
 if __name__ == "__main__":
 	app.run(debug=False)

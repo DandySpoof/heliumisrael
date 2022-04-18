@@ -14,11 +14,11 @@ def is_safe_url(target):
            ref_url.netloc == test_url.netloc
 
 def get_redirect_target():
-    for target in request.args.get('next'), request.referrer:
-        if not target:
-            continue
-        if is_safe_url(target):
-            return target
+	for target in request.args.get('next'), request.referrer:
+		if not target:
+		    continue
+		if is_safe_url(target):
+			return target
 
 
 class RedirectForm(FlaskForm):
@@ -30,9 +30,7 @@ class RedirectForm(FlaskForm):
 			self.next.data = get_redirect_target() or ''
 
 	def redirect(self, endpoint="home", **values):
-		print(endpoint)
 		if is_safe_url(self.next.data):
-			print("is safe - true")
 			return redirect(self.next.data)
 		target = get_redirect_target()
 		return redirect(target or url_for(endpoint, **values))
@@ -47,16 +45,16 @@ class CreatePostForm(FlaskForm):
 	submit = SubmitField("Submit Post")
 
 
-class NewUser(UserMixin, RedirectForm):
+class NewUser(UserMixin, FlaskForm):
 	name = StringField("Name:*", validators=[DataRequired("Please enter your name")])
 	email = EmailField("Email:*", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
-	phone = StringField("Phone:")
+	phone = StringField("Phone:*")
 	password = PasswordField("Password:*", validators=[DataRequired("Please enter your password")])
 	submit = SubmitField("Register")
 
 
-class Login(RedirectForm):
+class LoginForm(RedirectForm):
 	email = EmailField("Email:", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
 	password = PasswordField("Password:", validators=[DataRequired("Please enter your password")])

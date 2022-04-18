@@ -17,8 +17,13 @@ body {
 .register {
     margin:auto;
     width: 60%;
-
 }
+
+.login {
+    margin: 30px auto;
+    width: 30%;
+}
+
 
 p {
 	line-height: 1.5;

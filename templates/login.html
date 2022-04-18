@@ -11,21 +11,22 @@
 
 
     {% block h_title %}
-    <h1>Register</h1>
-    <span class="subheading">Join the Community</span>
+    <h1>Login</h1>
+    <span class="subheading">Welcome Back...</span>
     {% endblock h_title %}
 
 
     {% block content %}
-    <div class="container register">
-        <div class="row justify-content-start">
+    <div class="container login">
+        <div class="row justify-content-center">
+            {% set messages = get_flashed_messages() %}
             <div class="col">
+                {% if messages %}
+                <p style="color:red; text-align:center">{{ messages[0] }}</p>
+                {% endif %}
                 {{ render_form(form, action='', method="post", novalidate=True ) }}
             </div>
-            <div class="col">
-                <img src="{{ url_for('static', filename='img/whyearn.svg') }}" class="img-fluid" alt="Helium">
-<!--                TODO need to take care of image resposivness-->
-            </div>
+
         </div>
     </div>
 
