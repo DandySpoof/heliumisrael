@@ -108,7 +108,7 @@ class Miner(db.Model):
 	wallet = relationship("Wallet", back_populates="miners")
 
 	def __repr__(self):
-		return f"name: {self.name} - City: {self.city} - earining 30 days: {self.earnings_30}"
+		return f"name: {self.name} - City: {self.city}"
 
 
 # Line below only required once, when creating DB.
@@ -161,13 +161,13 @@ def get_miners_data():
 			response = rq.get(url, headers=headers, params=parameters)
 			response.raise_for_status()
 		except Exception as ex:
-			print(ex)
+			print(f"{ex} sleep 15 sec")
 			sleep(15)
 			try:
 				response = rq.get(url, headers=headers, params=parameters)
 				response.raise_for_status()
 			except Exception as ex:
-				print(ex)
+				print(f"{ex} continiue")
 				continue
 
 		data_7 = response.json()
@@ -185,13 +185,13 @@ def get_miners_data():
 			response = rq.get(url, headers=headers, params=parameters)
 			response.raise_for_status()
 		except Exception as ex:
-			print(ex)
+			print(f"{ex} sleep 15 sec")
 			sleep(15)
 			try:
 				response = rq.get(url, headers=headers, params=parameters)
 				response.raise_for_status()
 			except Exception as ex:
-				print(ex)
+				print(f"{ex} continiue")
 				continue
 			
 		data_30 = response.json()
@@ -218,14 +218,14 @@ def get_miners_data():
 			print(f"{m['name']} - whole record was added to db\n-------------------------------------------------->")
 		else:
 			# break  #USE this break to only update the db with new miners
-			miner = Miner(
-				city=m['geocode']['long_city'],
-				country=m['geocode']['long_country'],
-				street=m['geocode']['long_street'],
-				online=m['status']['online'],
-				earnings_7=earining_7,
-				earnings_30=earining_30,
-			)
+			miner = Miner.query.filter_by(name=m['name']).first()
+
+			miner.city = m['geocode']['long_city']
+			miner.country = m['geocode']['long_country']
+			miner.street = m['geocode']['long_street']
+			miner.online = m['status']['online']
+			miner.earnings_7 = earining_7
+			miner.earnings_30 = earining_30
 
 			print(miner)
 			print("db recored udpated\n-------------------------------------------------->")
@@ -235,15 +235,17 @@ def get_miners_data():
 				address=m["owner"],
 			)
 			db.session.add(wallet)
+
 		try:
 			db.session.commit()
+
 		except Exception as ex:
 			print(ex)
 			print(ex.args)
 			continue
 
 
-# get_miners_data()
+get_miners_data()
 
 def get_oracle_price():
 	response = rq.get("https://api.helium.io/v1/oracle/prices/current")
