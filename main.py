@@ -33,7 +33,7 @@ bootstrap = Bootstrap5(app)
 
 ## CONNECTING AND CONFIGURING GRAVATAR
 gravatar = Gravatar(app,
-                    size=40,
+                    size=30,
                     rating='g',
                     default='retro',
                     force_default=False,
@@ -245,7 +245,7 @@ def get_miners_data():
 			continue
 
 
-get_miners_data()
+# get_miners_data()
 
 def get_oracle_price():
 	response = rq.get("https://api.helium.io/v1/oracle/prices/current")
