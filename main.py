@@ -77,7 +77,7 @@ class Wallet(db.Model):
 	__tablename__ = "wallets"
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
 	address = db.Column(db.Text, unique=True, nullable=False)
-	# balance = db.Column(db.Float)
+	balance = db.Column(db.Float)
 
 	miners = relationship("Miner", back_populates="wallet")
 
@@ -180,7 +180,7 @@ def get_miners_data():
 			"max_time": time.isoformat(),
 			"min_time": last_30_days.isoformat(),
 		}
-		
+
 		try:
 			response = rq.get(url, headers=headers, params=parameters)
 			response.raise_for_status()
@@ -193,7 +193,7 @@ def get_miners_data():
 			except Exception as ex:
 				print(f"{ex} continiue")
 				continue
-			
+
 		data_30 = response.json()
 		earining_30 = float(data_30["data"]['sum']) / 100000000
 		print(earining_30)
@@ -205,7 +205,7 @@ def get_miners_data():
 				address=m['address'],
 				added=parser.parse(m['timestamp_added']),
 				city=m['geocode']['long_city'],
-				country=m['geocode']['long_country'],
+				country="Israel", #m['geocode']['long_country']
 				street=m['geocode']['long_street'],
 				online=m['status']['online'],
 				earnings_7=earining_7,
@@ -221,7 +221,7 @@ def get_miners_data():
 			miner = Miner.query.filter_by(name=m['name']).first()
 
 			miner.city = m['geocode']['long_city']
-			miner.country = m['geocode']['long_country']
+			# miner.country = m['geocode']['long_country']
 			miner.street = m['geocode']['long_street']
 			miner.online = m['status']['online']
 			miner.earnings_7 = earining_7
@@ -231,14 +231,13 @@ def get_miners_data():
 			print("db recored udpated\n-------------------------------------------------->")
 
 		if Wallet.query.filter_by(address=m["owner"]).first() == None:
-			wallet = Wallet(
+			new_wallet = Wallet(
 				address=m["owner"],
 			)
-			db.session.add(wallet)
+			db.session.add(new_wallet)
 
 		try:
 			db.session.commit()
-
 		except Exception as ex:
 			print(ex)
 			print(ex.args)
@@ -246,6 +245,38 @@ def get_miners_data():
 
 
 # get_miners_data()
+
+
+def get_wallets_data():
+	wallets = Wallet.query.all()
+
+	headers = {
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
+	}
+	for w in wallets:
+		url = f"https://api.helium.io/v1/accounts/{w.address}"
+		try:
+			response = rq.get(url, headers=headers)
+			response.raise_for_status()
+		except Exception as ex:
+			print(f"{ex} sleep 15 sec")
+			sleep(15)
+			try:
+				response = rq.get(url, headers=headers)
+				response.raise_for_status()
+			except Exception as ex:
+				print(f"{ex} continiue")
+				continue
+
+		wallet_data = response.json()
+		balance = int(wallet_data["data"]["balance"]) / 100000000
+		w.balance = balance
+		db.session.commit()
+		print(f"updated balnace for {w}  is: {balance} HNT")
+		sleep(2)
+
+# get_wallets_data()
+
 
 def get_oracle_price():
 	response = rq.get("https://api.helium.io/v1/oracle/prices/current")
