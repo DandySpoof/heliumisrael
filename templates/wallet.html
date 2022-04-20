@@ -61,7 +61,7 @@
                 <tr>
                     <td class="align-middle"><a target="_blank" style="color:#4087ea"
                                                 href="https://explorer.helium.com/hotspots/{{ miner.address }}">
-                        {{ miner.name }}</a></td>
+                        {{ miner.name | replace("-", " ") | title() }}</a></td>
                     <td class="align-middle">{{ miner.city }}</td>
                     <td class="align-middle">{{ miner.earnings_7|round(4) }}</td>
                     <td class="align-middle">{{ miner.earnings_30|round(4) }}</td>
@@ -96,7 +96,7 @@
                 <tr>
                     <td class="align-middle"><a target="_blank" style="color:#4087ea"
                                                 href="https://explorer.helium.com/hotspots/{{ miner.address }}">
-                        {{ miner.name }}</a></td>
+                        {{ miner.name | replace("-", " ") | title() }}</a></td>
                     <td class="align-middle">{{ miner.country }}</td>
                     <td class="align-middle">{{ miner.city }}</td>
                     {% if miner.online == 'online' %}
