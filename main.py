@@ -221,7 +221,7 @@ def get_miners_data():
 			miner = Miner.query.filter_by(name=m['name']).first()
 
 			miner.city = m['geocode']['long_city']
-			# miner.country = m['geocode']['long_country']
+			miner.country = "Israel" #m['geocode']['long_country']
 			miner.street = m['geocode']['long_street']
 			miner.online = m['status']['online']
 			miner.earnings_7 = earining_7
@@ -247,7 +247,7 @@ def get_miners_data():
 # get_miners_data()
 
 
-def get_wallets_data():
+def get_other_wallets_data():
 	wallets = Wallet.query.all()
 
 	headers = {
@@ -271,11 +271,50 @@ def get_wallets_data():
 		wallet_data = response.json()
 		balance = int(wallet_data["data"]["balance"]) / 100000000
 		w.balance = balance
-		db.session.commit()
 		print(f"updated balnace for {w}  is: {balance} HNT")
 		sleep(2)
 
-# get_wallets_data()
+		url = f"https://api.helium.io/v1/accounts/{w.address}/hotspots"
+		try:
+			response = rq.get(url, headers=headers)
+			response.raise_for_status()
+		except Exception as ex:
+			print(f"{ex} sleep 15 sec")
+			sleep(15)
+			try:
+				response = rq.get(url, headers=headers)
+				response.raise_for_status()
+			except Exception as ex:
+				print(f"{ex} continiue")
+				continue
+
+		miners_for_wallet = response.json()
+		for m in miners_for_wallet["data"]:
+			time = datetime.now()
+			if Miner.query.filter_by(address=m["address"]).first() == None:
+				new_miner = Miner(
+					name=m['name'],
+					address=m['address'],
+					added=time,
+					city=m['geocode']['long_city'],
+					country=m['geocode']['long_country'],
+					street=m['geocode']['long_street'],
+					online=m['status']['online'],
+					earnings_7=0.0,
+					earnings_30=0.0,
+					wallet_address=m["owner"],
+				)
+				db.session.add(new_miner)
+
+				print(new_miner)
+				print(
+					f"{m['name']} - A new, non-israeli miner was added to db\n---------------------------------------------->")
+
+
+		db.session.commit()
+
+
+# get_other_wallets_data()
 
 
 def get_oracle_price():
@@ -300,10 +339,10 @@ def home():
 
 	seven_days_backward = datetime.now() - timedelta(days=7)
 	all_miners = Miner.query.all()
-	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward]
+	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward and miner.country == "Israel"]
 	latest_miners_count = len(latest_miners)
 
-	miners = Miner.query.filter_by(online="online").all()
+	miners = Miner.query.filter_by(online="online", country="Israel").all()
 	total_online_miners = len(miners)
 	total_wallets_count = len(Wallet.query.all())
 
@@ -314,10 +353,17 @@ def home():
 @app.route("/wallet/<address>")
 def wallet(address):
 	wallet = Wallet.query.filter_by(address=address).first()
-	miners = wallet.miners
-	print(miners)
 
-	return render_template("wallet.html", miners=miners, wallet=wallet)
+	israel_miners = []
+	abroad_miners = []
+	for miner in wallet.miners:
+		if miner.country == "Israel":
+			israel_miners.append(miner)
+		else:
+			abroad_miners.append(miner)
+
+
+	return render_template("wallet.html", miners=israel_miners, miners_abroad=abroad_miners, wallet=wallet)
 
 
 @app.route("/wallets")
@@ -334,7 +380,7 @@ def wallets():
 
 	seven_days_backward = datetime.now() - timedelta(days=7)
 	all_miners = Miner.query.all()
-	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward]
+	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward and miner.country == "Israel"]
 	latest_miners_count = len(latest_miners)
 
 	miners = Miner.query.filter_by(online="online").all()

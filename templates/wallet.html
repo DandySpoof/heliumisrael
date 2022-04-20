@@ -30,13 +30,24 @@
                         </div>
                     </a>
                 </div>
+
+                <div class="col-lg-3">
+                    <a target="_blank" style="color:#4087ea"
+                       href="#">
+                        <div class="card-counter danger">
+                            <i class="fa fa-dollar-sign"></i>
+                            <span id="wallet-special"
+                                  class="count-numbers">{{ wallet.balance | round(2, 'common') }}</span>
+                            <span class="count-name">Balance (HNT)</span>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
 
         <div class="table-responsive shadow p-3 mb-5 bg-body rounded">
-
             <table name="table" data-toggle="table" data-search="true" data-pagination="true" data-show-columns="true"
-            data-sort-name="added" data-sort-order="desc">
+                   data-sort-name="added" data-sort-order="desc">
                 <thead class="table-headers">
                 <th data-field="name" data-valign="middle" data-sortable="true">Name</th>
                 <th data-field="city" data-valign="middle" data-sortable="true">City</th>
@@ -68,5 +79,38 @@
                 </tbody>
             </table>
         </div>
+
+        {% if miners_abroad %}
+        <h2> Miners located outside of Israel</h2>
+        <div class="table-responsive shadow p-3 mb-5 bg-body rounded">
+            <table name="table" data-toggle="table" data-search="true" data-pagination="true" data-show-columns="true"
+                   data-sort-name="added" data-sort-order="desc">
+                <thead class="table-headers">
+                <th data-field="name" data-valign="middle" data-sortable="true">Name</th>
+                <th data-field="city" data-valign="middle" data-sortable="true">Country</th>
+                <th data-field="earnings-7" data-valign="middle" data-sortable="true">City</th>
+                <th data-field="other-miners" data-valign="middle" data-sortable="true">Status</th>
+                </thead>
+                <tbody>
+                {% for miner in miners_abroad %}
+                <tr>
+                    <td class="align-middle"><a target="_blank" style="color:#4087ea"
+                                                href="https://explorer.helium.com/hotspots/{{ miner.address }}">
+                        {{ miner.name }}</a></td>
+                    <td class="align-middle">{{ miner.country }}</td>
+                    <td class="align-middle">{{ miner.city }}</td>
+                    {% if miner.online == 'online' %}
+                    <td class="align-middle" style="color:green">{{ miner.online }}</td>
+                    {% else %}
+                    <td class="align-middle" style="color:red">{{ miner.online }}</td>
+                    {% endif %}
+
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     </div>
     {% endblock content %}

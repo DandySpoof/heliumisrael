@@ -23,11 +23,11 @@
 
                 <div class="col-md-3">
                     <a href="{{ url_for('home') }}">
-                    <div class="card-counter danger">
-                        <i class="fa fa-wifi"></i>
-                        <span class="count-numbers">{{ miners_count }}</span>
-                        <span class="count-name">Miners (online)</span>
-                    </div>
+                        <div class="card-counter danger">
+                            <i class="fa fa-wifi"></i>
+                            <span class="count-numbers">{{ miners_count }}</span>
+                            <span class="count-name">Miners (online)</span>
+                        </div>
                     </a>
                 </div>
 
@@ -41,12 +41,12 @@
 
                 <div class="col-md-3">
                     <a href="{{ url_for('latest_miners') }}">
-                    <div class="card-counter info">
-                        <i class="fa fa-star"></i>
-                        <span class="count-numbers">{{ latest }}</span>
-                        <span class="count-name">New Miners (7d)</span>
-                    </div>
-                        </a>
+                        <div class="card-counter info">
+                            <i class="fa fa-star"></i>
+                            <span class="count-numbers">{{ latest }}</span>
+                            <span class="count-name">New Miners (7d)</span>
+                        </div>
+                    </a>
                 </div>
 
                 <div class="col-md-3">
@@ -62,28 +62,36 @@
 
         <div class="table-responsive shadow-lg p-3 mb-5 bg-body rounded">
 
-            <table name="table" data-toggle="table" data-search="true" data-pagination="true" data-show-columns="true">
+            <table name="table" data-toggle="table" data-search="true" data-pagination="true" data-show-columns="true"
+                   data-sort-name="balance" data-sort-order="desc">
                 <thead class="table-headers">
                 <th data-field="wallet" data-valign="middle" data-sortable="true">Wallet Address</th>
-                <th data-field="other-miners" data-valign="middle" data-sortable="true">Miners in Wallet</th>
+                <th data-field="balance" data-valign="middle" data-sortable="true">Wallet Balance (HNT)</th>
+                <th data-field="other-miners" data-valign="middle" data-sortable="true">Miners in Wallet<sup>*</sup>
+                </th>
+
                 </thead>
                 <tbody>
                 {% for wallet in wallets %}
                 <tr>
                     {% set wallet_address = wallet.address %}
                     <td class="align-middle"><a
-                                                style="color:#4087ea; font-family: 'Ubuntu', sans-serif; font-weight:700"
-                                                href="{{ url_for('wallet', address=wallet_address) }}">{{wallet_address}}</a>
+                            style="color:#4087ea; font-family: 'Ubuntu', sans-serif; font-weight:700"
+                            href="{{ url_for('wallet', address=wallet_address) }}">{{wallet_address}}</a>
                     </td>
-
+                    </td>
+                    <td class="align-middle"> {{ wallet.balance | round(2, 'common')}}
+                    </td>
                     <td class="align-middle"><a href="{{ url_for('wallet', address=wallet_address) }}"
                                                 style="color:#4087ea">{{ other_miners(wallet_address) }} miners</a>
-                    </td>
+
+
                 </tr>
                 {% endfor %}
 
                 </tbody>
             </table>
         </div>
+        <p><sup>*</sup>Only miners located in Israel</p>
     </div>
     {% endblock content %}
