@@ -67,8 +67,7 @@
                 <thead class="table-headers">
                 <th data-field="wallet" data-valign="middle" data-sortable="true">Wallet Address</th>
                 <th data-field="balance" data-valign="middle" data-sortable="true">Wallet Balance (HNT)</th>
-                <th data-field="other-miners" data-valign="middle" data-sortable="true">Miners in Wallet<sup>*</sup>
-                </th>
+                <th data-field="other-miners" data-valign="middle" data-sortable="true">Miners in Wallet</th>
 
                 </thead>
                 <tbody>
@@ -82,9 +81,8 @@
                     </td>
                     <td class="align-middle"> {{ wallet.balance | round(2, 'common')}}
                     </td>
-                    <td class="align-middle"><a href="{{ url_for('wallet', address=wallet_address) }}"
-                                                style="color:#4087ea">{{ other_miners(wallet_address) }} miners</a>
-
+                    <td class="align-middle">{{ other_miners(wallet_address) }}
+                    </td>
 
                 </tr>
                 {% endfor %}
@@ -92,6 +90,5 @@
                 </tbody>
             </table>
         </div>
-        <p><sup>*</sup>Only miners located in Israel</p>
     </div>
     {% endblock content %}

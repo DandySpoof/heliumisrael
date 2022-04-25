@@ -17,6 +17,9 @@ from wtforms.validators import DataRequired, URL
 from dateutil import parser
 from forms import CreatePostForm, NewUser, LoginForm, CommentForm
 from flask_gravatar import Gravatar
+import psycopg2
+import gunicorn
+
 
 # --- CREATE and CONFING Flask APP
 app = Flask(__name__)
@@ -200,12 +203,17 @@ def get_miners_data():
 		sleep(2)
 
 		if Miner.query.filter_by(name=m['name']).first() == None:
+			if m['geocode']['long_country'] == None:
+				country = "Israel"
+			else:
+				country = m['geocode']['long_country']
+
 			miner = Miner(
 				name=m['name'],
 				address=m['address'],
 				added=parser.parse(m['timestamp_added']),
 				city=m['geocode']['long_city'],
-				country="Israel", #m['geocode']['long_country']
+				country=country,
 				street=m['geocode']['long_street'],
 				online=m['status']['online'],
 				earnings_7=earining_7,
@@ -220,8 +228,13 @@ def get_miners_data():
 			# break  #USE this break to only update the db with new miners
 			miner = Miner.query.filter_by(name=m['name']).first()
 
+			if m['geocode']['long_country'] == None:
+				country = "Israel"
+			else:
+				country = m['geocode']['long_country']
+
 			miner.city = m['geocode']['long_city']
-			miner.country = "Israel" #m['geocode']['long_country']
+			miner.country = country #m['geocode']['long_country']
 			miner.street = m['geocode']['long_street']
 			miner.online = m['status']['online']
 			miner.earnings_7 = earining_7
@@ -233,6 +246,7 @@ def get_miners_data():
 		if Wallet.query.filter_by(address=m["owner"]).first() == None:
 			new_wallet = Wallet(
 				address=m["owner"],
+				balance=0,
 			)
 			db.session.add(new_wallet)
 
@@ -253,6 +267,8 @@ def get_other_wallets_data():
 	headers = {
 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
 	}
+
+	count = 0
 	for w in wallets:
 		url = f"https://api.helium.io/v1/accounts/{w.address}"
 		try:
@@ -270,8 +286,13 @@ def get_other_wallets_data():
 
 		wallet_data = response.json()
 		balance = int(wallet_data["data"]["balance"]) / 100000000
-		w.balance = balance
-		print(f"updated balnace for {w}  is: {balance} HNT")
+		if balance == None:
+			w.balance = "N/A"
+		else:
+			w.balance = balance
+
+		count += 1
+		print(f"{count} - updated balnace for {w}  is: {balance} HNT")
 		sleep(2)
 
 		url = f"https://api.helium.io/v1/accounts/{w.address}/hotspots"
@@ -339,7 +360,8 @@ def home():
 
 	seven_days_backward = datetime.now() - timedelta(days=7)
 	all_miners = Miner.query.all()
-	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward and miner.country == "Israel"]
+	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward and miner.country == "Israel"
+	                 and miner.online == "online"]
 	latest_miners_count = len(latest_miners)
 
 	miners = Miner.query.filter_by(online="online", country="Israel").all()
@@ -380,12 +402,14 @@ def wallets():
 
 	seven_days_backward = datetime.now() - timedelta(days=7)
 	all_miners = Miner.query.all()
-	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward and miner.country == "Israel"]
+	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward and miner.country == "Israel"
+	                 and miner.online == "online"]
 	latest_miners_count = len(latest_miners)
 
-	miners = Miner.query.filter_by(online="online").all()
+	miners = Miner.query.filter_by(online="online", country="Israel").all()
 	total_online_miners = len(miners)
 	total_wallets_count = len(Wallet.query.all())
+
 
 	return render_template("wallets.html", oracle_price=hnt, wallets=wallets, other_miners=other_miners, t_wallets=total_wallets_count,
 	                       miners_count=total_online_miners, latest=latest_miners_count)
@@ -402,14 +426,16 @@ def latest_miners():
 		owner_miners_count = len(wallet.miners)
 		return owner_miners_count
 
-	miners = Miner.query.filter_by(online="online").all()
+	seven_days_backward = datetime.now() - timedelta(days=7)
+	all_miners = Miner.query.all()
+	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward and miner.country == "Israel"
+	                 and miner.online == "online"]
+	latest_miners_count = len(latest_miners)
+
+	miners = Miner.query.filter_by(online="online", country="Israel").all()
 	total_online_miners = len(miners)
 	total_wallets_count = len(Wallet.query.all())
 
-	seven_days_backward = datetime.now() - timedelta(days=7)
-	all_miners = Miner.query.all()
-	latest_miners = [miner for miner in all_miners if miner.added > seven_days_backward]
-	latest_miners_count = len(latest_miners)
 
 	return render_template("latest.html", oracle_price=hnt, miners=latest_miners, other_miners=other_miners,
 	                       miners_count=total_online_miners, t_wallets=total_wallets_count, latest=latest_miners_count)
