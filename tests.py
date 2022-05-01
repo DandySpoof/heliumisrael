@@ -12,27 +12,27 @@ import requests as rq
 # date = "2020-08-29T00:00:00Z"
 # yourdate = parser.parse(date)
 # print(yourdate)
-
-time = datetime.now()
-last_7_days = time - timedelta(days=7)
-last_30_days = time - timedelta(days=30)
-
-url = f"https://api.helium.io/v1/hotspots/112PWaKaDxttMrxGem7Trt6Qs65ryCF9paeeoaQdNs2HTCiJsNNT/rewards/sum"
-
-headers = {
-		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
-	}
-
-parameters = {
-    "max_time": time.isoformat(),
-    "min_time": last_7_days.isoformat(),
-}
-response = rq.get(url, headers=headers, params=parameters)
-response.raise_for_status()
-data_7 = response.json()
-earining_7 = float(data_7["data"]['sum']) / 100000000
-print(earining_7)
-
+#
+# time = datetime.now()
+# last_7_days = time - timedelta(days=7)
+# last_30_days = time - timedelta(days=30)
+#
+# url = f"https://api.helium.io/v1/hotspots/112PWaKaDxttMrxGem7Trt6Qs65ryCF9paeeoaQdNs2HTCiJsNNT/rewards/sum"
+#
+# headers = {
+# 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
+# 	}
+#
+# parameters = {
+#     "max_time": time.isoformat(),
+#     "min_time": last_7_days.isoformat(),
+# }
+# response = rq.get(url, headers=headers, params=parameters)
+# response.raise_for_status()
+# data_7 = response.json()
+# earining_7 = float(data_7["data"]['sum']) / 100000000
+# print(earining_7)
+#
 
 # data = {
 # #   "data": [
@@ -162,3 +162,13 @@ print(earining_7)
 # #     }
 # #   ]
 # # }
+
+
+#Clear Redis quotes
+from redis import Redis
+from rq import Queue
+
+qfail = Queue(connection=Redis())
+print(qfail.count)
+qfail.empty()
+print(qfail.count)

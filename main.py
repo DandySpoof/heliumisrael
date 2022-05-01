@@ -93,7 +93,6 @@ class Wallet(db.Model):
 
 # db.create_all()
 
-
 class Miner(db.Model):
 	__tablename__ = "miners"
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
