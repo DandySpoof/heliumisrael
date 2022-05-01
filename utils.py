@@ -219,5 +219,3 @@ def get_other_wallets_data():
 
 		db.session.commit()
 
-def print_every_5_sec():
-	print("i'm printed every 5 seconds")
