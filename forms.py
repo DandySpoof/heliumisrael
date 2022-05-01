@@ -4,12 +4,19 @@ from wtforms import StringField, SubmitField, PasswordField, EmailField, HiddenF
 from wtforms.validators import DataRequired, URL, Email
 from flask_ckeditor import CKEditorField
 from flask_login import UserMixin
-from urlparse2 import urlparse2
-from urlparse2 import urlparse1
+from urllib.parse import urlparse, urljoin
+# from urlparse2 import urlparse2
+# from urlparse2 import urlparse1
+
+# def is_safe_url(target):
+#     ref_url = urlparse2.urlparse(request.host_url)
+#     test_url = urlparse2.urlparse(urlparse2.urljoin(request.host_url, target))
+#     return test_url.scheme in ('http', 'https') and \
+#            ref_url.netloc == test_url.netloc
 
 def is_safe_url(target):
-    ref_url = urlparse2.urlparse(request.host_url)
-    test_url = urlparse2.urlparse(urlparse2.urljoin(request.host_url, target))
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
            ref_url.netloc == test_url.netloc
 

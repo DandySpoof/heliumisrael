@@ -1,6 +1,7 @@
 import os
 from collections.abc import Mapping
 import redis
+from urllib.parse import urlparse
 from rq import Worker, Queue, Connection
 
 listen = ['high', 'default', 'low']
