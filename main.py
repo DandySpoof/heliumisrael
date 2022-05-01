@@ -74,7 +74,7 @@ class User(UserMixin, db.Model):
 		return f"User ID: {self.id}"
 
 
-db.create_all()
+# db.create_all()
 
 
 class Wallet(db.Model):
@@ -92,7 +92,7 @@ class Wallet(db.Model):
 		return f"Wallet: {self.address}"
 
 
-db.create_all()
+# db.create_all()
 
 class Miner(db.Model):
 	__tablename__ = "miners"
@@ -107,7 +107,7 @@ class Miner(db.Model):
 	earnings_7 = db.Column(db.Float)
 	earnings_30 = db.Column(db.Float)
 
-	wallet_address = db.Column(db.Integer, ForeignKey("wallets.address"))
+	wallet_address = db.Column(db.Text, ForeignKey("wallets.address"))
 	wallet = relationship("Wallet", back_populates="miners")
 
 	def __repr__(self):

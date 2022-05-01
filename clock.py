@@ -15,8 +15,8 @@ def miners_data():
     q.enqueue(get_miners_data)
     # get_miners_data()
 
-@sched.scheduled_job('interval',  minutes=2)
-def miners_data():
+@sched.scheduled_job('interval',  hours=2)
+def wallets_data():
     q.enqueue(get_other_wallets_data)
 
 # @sched.scheduled_job('cron', day_of_week='mon-fri', hour=17)
