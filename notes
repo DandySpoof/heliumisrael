@@ -1,0 +1,13 @@
+To Work loacly:
+1. Start Redis server:
+a. open ubuntu 18.04 LTS
+b. type - sudo service redis-server start
+c. type sudo password
+
+2. open a terminal for each process:
+a. main.py (the web process in Heroku)
+b. worker.py (type in terminal python worker.py)
+c. clock.py (type in terminal python clock.py)
+
+
+
