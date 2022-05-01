@@ -74,7 +74,7 @@ class User(UserMixin, db.Model):
 		return f"User ID: {self.id}"
 
 
-# db.create_all()
+db.create_all()
 
 
 class Wallet(db.Model):
@@ -92,7 +92,7 @@ class Wallet(db.Model):
 		return f"Wallet: {self.address}"
 
 
-# db.create_all()
+db.create_all()
 
 class Miner(db.Model):
 	__tablename__ = "miners"
@@ -115,7 +115,7 @@ class Miner(db.Model):
 
 
 # Line below only required once, when creating DB.
-# db.create_all()
+db.create_all()
 
 def get_miners_data():
 	headers = {
@@ -258,7 +258,7 @@ def get_miners_data():
 			continue
 
 
-get_miners_data()
+# get_miners_data()
 
 
 def get_other_wallets_data():
