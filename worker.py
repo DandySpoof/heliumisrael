@@ -1,5 +1,5 @@
 import os
-
+from collections import Mapping
 import redis
 from rq import Worker, Queue, Connection
 

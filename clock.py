@@ -1,6 +1,7 @@
 from pytz import utc
 from rq import Queue
 from worker import conn
+from collections import Mapping
 from utils import print_every_5_sec, get_miners_data, get_other_wallets_data
 
 from apscheduler.schedulers.blocking import BlockingScheduler
