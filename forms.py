@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, URL, Email
 from flask_ckeditor import CKEditorField
 from flask_login import UserMixin
 from urlparse2 import urlparse2
-
+from urlparse2 import urlparse1
 
 def is_safe_url(target):
     ref_url = urlparse2.urlparse(request.host_url)
