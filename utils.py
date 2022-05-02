@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from random import randint
 import requests as rq
 from time import sleep
-from main import Miner, Wallet,NewUser, db
+from main import Miner, Wallet, NewUser, db
 from dateutil import parser
 
 
@@ -91,6 +91,14 @@ def get_miners_data():
 		print(earining_30)
 		sleep(2)
 
+		if Wallet.query.filter_by(address=m["owner"]).first() == None:
+			new_wallet = Wallet(
+				address=m["owner"],
+				balance=0,
+			)
+			db.session.add(new_wallet)
+			db.session.commit()
+
 		if Miner.query.filter_by(name=m['name']).first() == None:
 			if m['geocode']['long_country'] == None:
 				country = "Israel"
@@ -132,12 +140,6 @@ def get_miners_data():
 			print(miner)
 			print("db recored udpated\n-------------------------------------------------->")
 
-		if Wallet.query.filter_by(address=m["owner"]).first() == None:
-			new_wallet = Wallet(
-				address=m["owner"],
-				balance=0,
-			)
-			db.session.add(new_wallet)
 
 		try:
 			db.session.commit()
