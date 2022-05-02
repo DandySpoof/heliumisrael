@@ -68,12 +68,12 @@
             <table name="table" data-toggle="table" data-search="true" data-pagination="true" data-show-columns="true"
                    data-sort-name="added" data-sort-order="desc">
                 <thead class="table-headers">
-                <th data-field="name" data-valign="middle" data-sortable="true">Name</th>
+                <th data-field="name" data-valign="middle">Name</th>
                 <th data-field="city" data-valign="middle" data-sortable="true">City</th>
                 <th data-field="earnings-7" data-valign="middle" data-sortable="true">Earning 7<br>days</th>
                 <th data-field="earnings-30" data-valign="middle" data-sortable="true">Earning 30<br>days</th>
                 <th data-field="added" data-valign="middle" data-sortable="true">Added<br>date</th>
-                <th data-field="other-miners" data-valign="middle" data-sortable="true">Miners<br>in Wallet<sup>*</sup></th>
+                <th data-field="other-miners" data-valign="middle">Miners<br>in Wallet<sup>*</sup></th>
                 </thead>
                 <tbody>
                 {% for miner in miners %}
@@ -96,5 +96,6 @@
                 </tbody>
             </table>
         </div>
+        <p><sup>*</sup>Miners in Israel</p>
     </div>
     {% endblock content %}

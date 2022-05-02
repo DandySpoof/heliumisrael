@@ -11,7 +11,7 @@ def get_miners_data():
 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
 	}
 
-	# Get all hotspots in Israel
+	## Get all hotspots in Israel Box
 	israel_box = {
 		"cursor": None,
 		"swlat": 29.4255538961337,
@@ -34,6 +34,7 @@ def get_miners_data():
 	miners = data["data"]
 	# print(miners)
 
+
 	time = datetime.now()
 	last_7_days = time - timedelta(days=7)
 	last_30_days = time - timedelta(days=30)
@@ -44,6 +45,7 @@ def get_miners_data():
 		count += 1
 		print(f"{count} - {m['name']}")
 
+		## Get miner's 7 days earinings
 		url = f"https://api.helium.io/v1/hotspots/{m['address']}/rewards/sum"
 		parameters = {
 			"max_time": time.isoformat(),
@@ -67,6 +69,8 @@ def get_miners_data():
 		print(earining_7)
 		sleep(2)
 
+
+		## Get miner's 30 days earinings
 		url = f"https://api.helium.io/v1/hotspots/{m['address']}/rewards/sum"
 		parameters = {
 			"max_time": time.isoformat(),
@@ -91,6 +95,7 @@ def get_miners_data():
 		print(earining_30)
 		sleep(2)
 
+		## Check if wallet exist, if not, create new wallet
 		if Wallet.query.filter_by(address=m["owner"]).first() == None:
 			new_wallet = Wallet(
 				address=m["owner"],
@@ -98,8 +103,36 @@ def get_miners_data():
 			)
 			db.session.add(new_wallet)
 			db.session.commit()
+		sleep(2)
 
+		## Update wallet balance
+		wallet = Wallet.query.filter_by(address=m["owner"]).first()
+		url = f"https://api.helium.io/v1/accounts/{wallet.address}"
+		try:
+			response = rq.get(url, headers=headers)
+			response.raise_for_status()
+		except Exception as ex:
+			print(f"{ex} sleep 15 sec")
+			sleep(15)
+			try:
+				response = rq.get(url, headers=headers)
+				response.raise_for_status()
+			except Exception as ex:
+				print(f"{ex} continiue")
+				continue
 
+		wallet_data = response.json()
+		balance = int(wallet_data["data"]["balance"]) / 100000000
+		if balance == None:
+			wallet.balance = 0
+		else:
+			wallet.balance = balance
+
+		print(f"Updated balnace for {wallet}  is: {balance} HNT")
+		sleep(2)
+
+		## Check If miner exist in DB, if not, create it and insert data.
+		## If miner exist, update status, location and earnings
 		if Miner.query.filter_by(name=m['name']).first() == None:
 			if m['geocode']['long_country'] == None:
 				country = "Israel"
@@ -149,7 +182,9 @@ def get_miners_data():
 			print(ex.args)
 			continue
 
-def get_other_wallets_data():
+
+
+def get_all_hotspots_for_all_wallets():
 	wallets = Wallet.query.all()
 
 	headers = {
@@ -158,31 +193,6 @@ def get_other_wallets_data():
 
 	count = 0
 	for w in wallets:
-		url = f"https://api.helium.io/v1/accounts/{w.address}"
-		try:
-			response = rq.get(url, headers=headers)
-			response.raise_for_status()
-		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
-			try:
-				response = rq.get(url, headers=headers)
-				response.raise_for_status()
-			except Exception as ex:
-				print(f"{ex} continiue")
-				continue
-
-		wallet_data = response.json()
-		balance = int(wallet_data["data"]["balance"]) / 100000000
-		if balance == None:
-			w.balance = "N/A"
-		else:
-			w.balance = balance
-
-		count += 1
-		print(f"{count} - updated balnace for {w}  is: {balance} HNT")
-		sleep(2)
-
 		url = f"https://api.helium.io/v1/accounts/{w.address}/hotspots"
 		try:
 			response = rq.get(url, headers=headers)
@@ -217,7 +227,7 @@ def get_other_wallets_data():
 
 				print(new_miner)
 				print(
-					f"{m['name']} - A new, non-israeli miner was added to db\n---------------------------------------------->")
+					f"{m['name']} - A new, non-Israeli miner was added to db\n------------------------------------>")
 
 
 		db.session.commit()
