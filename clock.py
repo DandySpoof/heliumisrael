@@ -15,6 +15,10 @@ def miners_data():
     # q.enqueue(get_miners_data)
     get_miners_data()
 
+@sched.scheduled_job('interval',  seconds=10)
+def print_function():
+    print("i print every 10 seconds")
+
 # @sched.scheduled_job('interval',  hours=15)
 # def wallets_data():
 #     q.enqueue(get_other_wallets_data)

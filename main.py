@@ -115,7 +115,7 @@ class Miner(db.Model):
 
 
 # Line below only required once, when creating DB.
-db.create_all()
+# db.create_all()
 
 def get_miners_data():
 	headers = {
