@@ -10,18 +10,20 @@ q = Queue(connection=conn)
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job('interval',  hours=1)
+@sched.scheduled_job('interval',  minutes=1)
 def miners_data():
     # q.enqueue(get_miners_data)
+    print("I get miners data")
     get_miners_data()
 
-@sched.scheduled_job('interval',  seconds=10)
-def print_function():
-    print("i print every 10 seconds")
+# @sched.scheduled_job('interval',  seconds=10)
+# def print_function():
+#     print("i print every 10 seconds")
 
-# @sched.scheduled_job('interval',  hours=15)
-# def wallets_data():
-#     q.enqueue(get_other_wallets_data)
+@sched.scheduled_job('interval',  hours=6)
+def wallets_data():
+    # q.enqueue(get_other_wallets_data)
+    get_other_wallets_data()
 
 # @sched.scheduled_job('cron', day_of_week='mon-fri', hour=17)
 # def scheduled_job():
