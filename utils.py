@@ -99,6 +99,7 @@ def get_miners_data():
 			db.session.add(new_wallet)
 			db.session.commit()
 
+
 		if Miner.query.filter_by(name=m['name']).first() == None:
 			if m['geocode']['long_country'] == None:
 				country = "Israel"
