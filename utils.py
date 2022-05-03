@@ -229,6 +229,6 @@ def get_all_hotspots_for_all_wallets():
 				print(
 					f"{m['name']} - A new, non-Israeli miner was added to db\n------------------------------------>")
 
-
 		db.session.commit()
+		sleep(2)
 
