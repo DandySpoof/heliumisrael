@@ -26,7 +26,7 @@ def get_miners_data():
 		response.raise_for_status()
 	except Exception as ex:
 		print(ex)
-		sleep(60)
+		sleep(5)
 		get_miners_data()
 
 	data = response.json()
@@ -55,13 +55,13 @@ def get_miners_data():
 			response = rq.get(url, headers=headers, params=parameters)
 			response.raise_for_status()
 		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
+			print(f"{ex} sleep 5 sec")
+			sleep(5)
 			try:
 				response = rq.get(url, headers=headers, params=parameters)
 				response.raise_for_status()
 			except Exception as ex:
-				print(f"{ex} continiue")
+				print(f"{ex} continue")
 				continue
 
 		data_7 = response.json()
@@ -81,13 +81,13 @@ def get_miners_data():
 			response = rq.get(url, headers=headers, params=parameters)
 			response.raise_for_status()
 		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
+			print(f"{ex} sleep 5 sec")
+			sleep(5)
 			try:
 				response = rq.get(url, headers=headers, params=parameters)
 				response.raise_for_status()
 			except Exception as ex:
-				print(f"{ex} continiue")
+				print(f"{ex} continue")
 				continue
 
 		data_30 = response.json()
@@ -112,13 +112,13 @@ def get_miners_data():
 			response = rq.get(url, headers=headers)
 			response.raise_for_status()
 		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
+			print(f"{ex} sleep 5 sec")
+			sleep(5)
 			try:
 				response = rq.get(url, headers=headers)
 				response.raise_for_status()
 			except Exception as ex:
-				print(f"{ex} continiue")
+				print(f"{ex} - continue")
 				continue
 
 		wallet_data = response.json()
@@ -186,6 +186,7 @@ def get_miners_data():
 
 def get_all_hotspots_for_all_wallets():
 	wallets = Wallet.query.all()
+	print(wallets)
 
 	headers = {
 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
@@ -198,13 +199,13 @@ def get_all_hotspots_for_all_wallets():
 			response = rq.get(url, headers=headers)
 			response.raise_for_status()
 		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
+			print(f"{ex} - sleep 5 sec")
+			sleep(5)
 			try:
 				response = rq.get(url, headers=headers)
 				response.raise_for_status()
 			except Exception as ex:
-				print(f"{ex} continiue")
+				print(f"{ex} - Continue without update of {w}")
 				continue
 
 		miners_for_wallet = response.json()
@@ -228,7 +229,8 @@ def get_all_hotspots_for_all_wallets():
 				print(new_miner)
 				print(
 					f"{m['name']} - A new, non-Israeli miner was added to db\n------------------------------------>")
-
+			else:
+				print(f"Miner {m['name']} already exist in wallet {w.address}")
 		db.session.commit()
 		sleep(2)
 

@@ -64,9 +64,10 @@ class User(UserMixin, db.Model):
 	__tablename__ = "users"
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(50), nullable=False)
-	phone = db.Column(db.Text)
+	phone = db.Column(db.Text, nullable=False)
 	email = db.Column(db.String(70), unique=True, nullable=False)
 	password = db.Column(db.Text, nullable=False)
+	verified = db.Columns(db.Boolean, nullable=False)
 
 	wallets = relationship("Wallet", back_populates="user")
 
@@ -471,7 +472,9 @@ def register():
 				name=form.name.data,
 				phone=form.phone.data,
 				email=form.email.data,
-				password=hash)
+				password=hash,
+				verified="0"
+			)
 
 			db.session.add(new_user)
 			db.session.commit()
