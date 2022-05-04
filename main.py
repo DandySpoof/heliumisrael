@@ -67,7 +67,7 @@ class User(UserMixin, db.Model):
 	phone = db.Column(db.Text, nullable=False)
 	email = db.Column(db.String(70), unique=True, nullable=False)
 	password = db.Column(db.Text, nullable=False)
-	verified = db.Columns(db.Boolean, nullable=False)
+	verified = db.Column(db.Boolean, nullable=False)
 
 	wallets = relationship("Wallet", back_populates="user")
 
