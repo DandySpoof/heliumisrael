@@ -20,6 +20,7 @@ from forms import CreatePostForm, NewUser, LoginForm, CommentForm
 from flask_gravatar import Gravatar
 import psycopg2
 import gunicorn
+from twilio.rest import Client
 
 
 # --- CREATE and CONFING Flask APP
@@ -51,6 +52,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 login_manager.login_message = u"To view this page, you must login first"
+
 
 
 @login_manager.user_loader
@@ -373,22 +375,6 @@ def home():
 	                       miners_count=total_online_miners, t_wallets=total_wallets_count, latest=latest_miners_count)
 
 
-@app.route("/wallet/<address>")
-def wallet(address):
-	wallet = Wallet.query.filter_by(address=address).first()
-
-	israel_miners = []
-	abroad_miners = []
-	for miner in wallet.miners:
-		if miner.country == "Israel":
-			israel_miners.append(miner)
-		else:
-			abroad_miners.append(miner)
-
-
-	return render_template("wallet.html", miners=israel_miners, miners_abroad=abroad_miners, wallet=wallet)
-
-
 @app.route("/wallets")
 def wallets():
 	wallets = Wallet.query.all()
@@ -441,6 +427,60 @@ def latest_miners():
 	return render_template("latest.html", oracle_price=hnt, miners=latest_miners, other_miners=other_miners,
 	                       miners_count=total_online_miners, t_wallets=total_wallets_count, latest=latest_miners_count)
 
+
+@app.route("/hnt-price")
+def price():
+	return get_oracle_price()
+	# Show intractive price chart
+
+
+@app.route("/wallet/<address>")
+def wallet(address):
+	wallet = Wallet.query.filter_by(address=address).first()
+
+	israel_miners = []
+	abroad_miners = []
+	for miner in wallet.miners:
+		if miner.country == "Israel":
+			israel_miners.append(miner)
+		else:
+			abroad_miners.append(miner)
+
+	return render_template("wallet.html", miners=israel_miners, miners_abroad=abroad_miners, wallet=wallet)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+	form = NewUser()
+
+	if form.validate_on_submit():
+		detected_user = User.query.filter_by(email=form.email.data).first()
+		hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
+
+		if detected_user == None:
+			new_user = User(
+				name=form.name.data,
+				phone=form.phone.data,
+				email=form.email.data,
+				password=hash,
+				verified=0
+			)
+
+			db.session.add(new_user)
+			db.session.commit()
+
+			login_user(new_user)
+			# flash("Login successfully")
+			print("Login successfully")
+
+			return redirect(url_for("home"))
+
+		flash("This email is already registered. Try logging in instead.")
+		return redirect(url_for("login"))
+
+	return render_template("register.html", form=form)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 	form = LoginForm()
@@ -459,36 +499,7 @@ def login():
 
 	return render_template("login.html", form=form)
 
-@app.route("/register", methods=["GET", "POST"])
-def register():
-	form = NewUser()
 
-	if form.validate_on_submit():
-		detected_user = User.query.filter_by(email=form.email.data).first()
-		hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
-
-		if detected_user == None:
-			new_user = User(
-				name=form.name.data,
-				phone=form.phone.data,
-				email=form.email.data,
-				password=hash,
-				verified="0"
-			)
-
-			db.session.add(new_user)
-			db.session.commit()
-
-			login_user(new_user)
-			# flash("Login successfully")
-			print("Login successfully")
-
-			return redirect(url_for("home"))
-
-		flash("This email is already registered. Try logging in instead.")
-		return redirect(url_for("login"))
-
-	return render_template("register.html", form=form)
 
 @app.route("/logout")
 @login_required
@@ -496,15 +507,19 @@ def logout():
 	logout_user()
 	return redirect(url_for("home"))
 
+
 @app.route("/dashboard")
 @login_required
 def dashboard():
 	print(current_user.name)
-	return "<p> My dashboard</p>"
+	return f"<p> {current_user.name} dashboard</p>"
+
 
 @app.route("/contact")
 def contact():
 	return "<p> contact page</p>"
+
+
 
 if __name__ == "__main__":
 	app.run(debug=False)
