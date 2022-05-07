@@ -1,8 +1,9 @@
-from collections.abc import Mapping
 from datetime import datetime, timedelta
+from collections.abc import Mapping
+from functools import wraps
 from random import randint
-import requests as rq
 from time import sleep
+import requests as rq
 import os
 
 from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory
@@ -16,7 +17,7 @@ from flask_bootstrap import Bootstrap5
 # from wtforms import StringField, SubmitField
 # from wtforms.validators import DataRequired, URL
 from dateutil import parser
-from forms import CreatePostForm, NewUser, LoginForm, CommentForm
+from forms import CreatePostForm, NewUser, LoginForm, CommentForm, Confirm2faForm
 from auth import request_verification_token, check_verification_token
 from flask_gravatar import Gravatar
 import psycopg2
@@ -73,6 +74,7 @@ class User(UserMixin, db.Model):
 	verified = db.Column(db.Boolean, nullable=False)
 	allow_ads =db.Column(db.Boolean, nullable=False)
 	role = db.Column(db.Text)
+	#TODO: add registration timestamp
 
 	wallets = relationship("Wallet", back_populates="user")
 
@@ -343,6 +345,18 @@ def get_other_wallets_data():
 
 # get_other_wallets_data()
 
+##Security gateway function that allows only un-verified users (verified=0) to enter the verify route
+def only_not_verified(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if current_user.is_active and current_user.verified == False:
+            return func(*args, **kwargs)
+        print(type(current_user.verified))
+        print("abort 403")
+        return abort(403)
+
+    return decorated_function
+
 
 def get_oracle_price():
 	response = rq.get("https://api.helium.io/v1/oracle/prices/current")
@@ -476,14 +490,43 @@ def register():
 
 			login_user(new_user)
 			# flash("Login successfully")
-			print("Login successfully")
+			print(f"New registration - {new_user}")
 
-			return redirect(url_for("home"))
+			phone = new_user.phone.strip().replace("-", "")
+			request_verification_token(f"+972{phone}")
+
+			return redirect(url_for("verify"))
 
 		flash("This email is already registered. Try logging in instead.")
 		return redirect(url_for("login"))
 
 	return render_template("register.html", form=form)
+
+
+@app.route("/verify", methods=["GET", "POST"])
+@login_required
+@only_not_verified
+def verify():
+	print(current_user)
+	form = Confirm2faForm()
+
+	if form.validate_on_submit():
+		phone = current_user.phone.strip().replace("-", "")
+		token = form.token.data
+		print(token)
+		verification = check_verification_token(f"+972{phone}",token)
+		print(verification)
+
+		if verification:
+			current_user.verified = True
+			db.session.commit()
+			print("verified")
+			return redirect(url_for("home"))
+		else:
+			flash("Wrong token - please try again.")
+			print("Not verified")
+
+	return render_template("verify.html", form=form)
 
 
 @app.route("/login", methods=["GET", "POST"])

@@ -35,6 +35,9 @@ def request_verification_token(phone):
 
 def check_verification_token(phone, token):
 	client = _get_twilio_verify_client()
+	print(f"AUTH FUNCTION{token}")
+	print(f"AUTH FUNCTION {phone}")
+
 	try:
 		result = verification_check = client.verify \
 			.services(service_sid) \

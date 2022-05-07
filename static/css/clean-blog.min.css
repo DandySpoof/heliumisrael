@@ -24,6 +24,11 @@ body {
     width: 30%;
 }
 
+.verify {
+    margin: 30px auto;
+    width: 15%;
+}
+
 
 p {
 	line-height: 1.5;

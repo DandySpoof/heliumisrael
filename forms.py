@@ -73,5 +73,5 @@ class CommentForm(FlaskForm):
 	submit = SubmitField("Submit Comment")
 
 class Confirm2faForm(FlaskForm):
-    token = StringField('Token')
-    submit = SubmitField('Verify')
+    token = StringField("Enter token", validators=[DataRequired("Please enter your token")])
+    submit = SubmitField("Verify")
