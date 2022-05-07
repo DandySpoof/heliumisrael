@@ -10,13 +10,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user, login_fresh
 from flask_bootstrap import Bootstrap5
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, URL
+# from flask_wtf import FlaskForm
+# from wtforms import StringField, SubmitField
+# from wtforms.validators import DataRequired, URL
 from dateutil import parser
 from forms import CreatePostForm, NewUser, LoginForm, CommentForm
+from auth import request_verification_token, check_verification_token
 from flask_gravatar import Gravatar
 import psycopg2
 import gunicorn
@@ -70,6 +71,8 @@ class User(UserMixin, db.Model):
 	email = db.Column(db.String(70), unique=True, nullable=False)
 	password = db.Column(db.Text, nullable=False)
 	verified = db.Column(db.Boolean, nullable=False)
+	allow_ads =db.Column(db.Boolean, nullable=False)
+	role = db.Column(db.Text)
 
 	wallets = relationship("Wallet", back_populates="user")
 
@@ -455,15 +458,17 @@ def register():
 
 	if form.validate_on_submit():
 		detected_user = User.query.filter_by(email=form.email.data).first()
-		hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
 
 		if detected_user == None:
+			hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
+
 			new_user = User(
 				name=form.name.data,
 				phone=form.phone.data,
 				email=form.email.data,
 				password=hash,
-				verified=0
+				verified=0,
+				allow_ads=form.allow_ads.data
 			)
 
 			db.session.add(new_user)

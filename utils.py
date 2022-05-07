@@ -182,8 +182,6 @@ def get_miners_data():
 			print(ex.args)
 			continue
 
-
-
 def get_all_hotspots_for_all_wallets():
 	wallets = Wallet.query.all()
 	# print(wallets)

@@ -165,10 +165,41 @@ import requests as rq
 
 
 #Clear Redis quotes
-from redis import Redis
-from rq import Queue
+# from redis import Redis
+# from rq import Queue
+#
+# qfail = Queue(connection=Redis())
+# print(qfail.count)
+# qfail.empty()
+# print(qfail.count)
 
-qfail = Queue(connection=Redis())
-print(qfail.count)
-qfail.empty()
-print(qfail.count)
+# from twilio.rest import Client
+# from twilio.base.exceptions import *
+# import os
+#
+# account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
+# auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
+# service_sid = os.environ.get("TWILIO_VERIFY_SERVICE_ID")
+#
+# client = Client(account_sid, auth_token)
+# verification = client.verify \
+#                      .services(service_sid) \
+#                      .verifications \
+#                      .create(to='+9720507751298', channel='sms')
+#
+# code = str(input("Enter token: "))
+#
+# try:
+# 	verification_check = client.verify\
+# 		.services(service_sid)\
+# 		.verification_checks\
+# 		.create(to='+9720507751298', code=code)
+# except TwilioRestException:
+# 	print("Wrong token, pls try again")
+# 	code = str(input("Enter token: "))
+# 	verification_check = client.verify \
+# 		.services(service_sid) \
+# 		.verification_checks \
+# 		.create(to='+9720507751298', code=code)
+#
+# print(verification_check.status)

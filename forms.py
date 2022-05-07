@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask import request, url_for, redirect
-from wtforms import StringField, SubmitField, PasswordField, EmailField, HiddenField
+from wtforms import StringField, SubmitField, PasswordField, EmailField, HiddenField, BooleanField
 from wtforms.validators import DataRequired, URL, Email
 from flask_ckeditor import CKEditorField
 from flask_login import UserMixin
@@ -56,8 +56,9 @@ class NewUser(UserMixin, FlaskForm):
 	name = StringField("Name:*", validators=[DataRequired("Please enter your name")])
 	email = EmailField("Email:*", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
-	phone = StringField("Phone:*")
+	phone = StringField("Phone:*", validators=[DataRequired("Please enter your password")])
 	password = PasswordField("Password:*", validators=[DataRequired("Please enter your password")])
+	allow_ads = BooleanField("Keep me updated (no spam, we promise)", default="checked", false_values="0")
 	submit = SubmitField("Register")
 
 
@@ -70,3 +71,7 @@ class LoginForm(RedirectForm):
 class CommentForm(FlaskForm):
 	body = CKEditorField("Comment", validators=[DataRequired("Please write somthing")])
 	submit = SubmitField("Submit Comment")
+
+class Confirm2faForm(FlaskForm):
+    token = StringField('Token')
+    submit = SubmitField('Verify')
