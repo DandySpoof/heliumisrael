@@ -469,7 +469,7 @@ def wallet(address):
 @app.route("/register", methods=["GET", "POST"])
 def register():
 	form = NewUser()
-
+	print(form.phone.data)
 	if form.validate_on_submit():
 		detected_user = User.query.filter_by(email=form.email.data).first()
 		#TODO: need phone field cleanup for standardization

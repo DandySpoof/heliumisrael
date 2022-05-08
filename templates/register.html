@@ -33,7 +33,8 @@
         <div class="row justify-content-start">
             <div class="col">
                 {{ render_form(form, action='', method="post", novalidate=True ) }}
-                <span id="error-msg" class="hide"></span>
+                <span id="valid-msg" class="d-none"></span>
+                <span style="color:red" id="error-msg" class="hide"></span>
             </div>
             <div class="col">
                 <img src="{{ url_for('static', filename='img/whyearn.svg') }}" class="img-fluid" alt="Helium">
@@ -49,9 +50,8 @@
     phone_field.style.position = 'absolute';
     phone_field.style.top = '-9999px';
     phone_field.style.left = '-9999px';
-    phone_field.parentElement.insertAdjacentHTML('beforeend', '<div><input style="width:145%" class="form-control" type="tel" id="_phone"></div>');
+    phone_field.parentElement.insertAdjacentHTML('beforeend', '<div><input style="width:143%" class="form-control" type="tel" id="_phone"></div>');
     var fancy_phone_field = document.getElementById('_phone');
-
 
 
     var input = document.querySelector("#_phone"),
@@ -59,17 +59,24 @@
     validMsg = document.querySelector("#valid-msg");
 
 <!--    // here, the index maps to the error code returned from getValidationError - see readme-->
-    var errorMap = ["Invalid phone number", "Invalid country code", "Phone number too short", "Phone number too long", "Invalid phone number"];
+    var errorMap = ["❌ Invalid phone number", "❌ Invalid country code", "❌ Phone number too short", "❌ Phone number too long", "❌ Invalid phone number"];
 
-<!--    // initialise plugin-->
+<!--    // initialise plugin // set flag to proper geocode and call utils.js for validation-->
     var iti = window.intlTelInput(input, {
+    initialCountry: "auto",
+      geoIpLookup: function(callback) {
+        $.get('https://ipinfo.io', function() {}, "jsonp").always(function(resp) {
+          var countryCode = (resp && resp.country) ? resp.country : "us";
+          callback(countryCode);
+        });
+      },
       utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/js/utils.js"
     });
 
     var reset = function() {
       input.classList.remove("error");
       errorMsg.innerHTML = "";
-      errorMsg.classList.add("hide");
+      errorMsg.classList.add("d-none");
     };
 
 <!--    // on blur: validate-->
@@ -77,12 +84,12 @@
       reset();
       if (input.value.trim()) {
         if (iti.isValidNumber()) {
-          validMsg.classList.remove("hide");
+          validMsg.classList.remove("d-none");
         } else {
           input.classList.add("error");
           var errorCode = iti.getValidationError();
           errorMsg.innerHTML = errorMap[errorCode];
-          errorMsg.classList.remove("hide");
+          errorMsg.classList.remove("d-none");
         }
       }
     });
@@ -90,19 +97,6 @@
 <!--    // on keyup / change flag: reset-->
     input.addEventListener('change', reset);
     input.addEventListener('keyup', reset);
-
-
-    var fancy_phone_iti = document.querySelector("#_phone");
-    window.intlTelInput(fancy_phone_iti, {
-      initialCountry: "auto",
-      geoIpLookup: function(callback) {
-        $.get('https://ipinfo.io', function() {}, "jsonp").always(function(resp) {
-          var countryCode = (resp && resp.country) ? resp.country : "us";
-          callback(countryCode);
-        });
-      },
-      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/js/utils.js",
-    });
 
 
     fancy_phone_iti.setNumber(phone_field.value);
