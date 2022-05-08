@@ -2,6 +2,14 @@
 
 {% from 'bootstrap/form.html' import render_form %}
 
+{% block styling %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/css/intlTelInput.css">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+{% endblock styling %}
+
+
 {% block title %}Helium Israel{% endblock title %}
 
 
@@ -9,29 +17,100 @@
 
 <header class="masthead" style="background-image: url({{ url_for('static', filename='img/helium-map.png') }}) ">
 
-{% endblock h_image %}
+    {% endblock h_image %}
 
 
-{% block h_title %}
+    {% block h_title %}
 
-<h1>Register</h1>
-<span class="subheading">Join the Community</span>
+    <h1>Register</h1>
+    <span class="subheading">Join the Community</span>
 
-{% endblock h_title %}
+    {% endblock h_title %}
 
 
-{% block content %}
-<div class="container register">
-    <div class="row justify-content-start">
-        <div class="col">
-            {{ render_form(form, action='', method="post", novalidate=True ) }}
-        </div>
-        <div class="col">
-            <img src="{{ url_for('static', filename='img/whyearn.svg') }}" class="img-fluid" alt="Helium">
-            <!--                TODO need to take care of image resposivness-->
+    {% block content %}
+    <div class="container register">
+        <div class="row justify-content-start">
+            <div class="col">
+                {{ render_form(form, action='', method="post", novalidate=True ) }}
+                <span id="error-msg" class="hide"></span>
+            </div>
+            <div class="col">
+                <img src="{{ url_for('static', filename='img/whyearn.svg') }}" class="img-fluid" alt="Helium">
+                <!--                TODO need to take care of image resposivness-->
+            </div>
         </div>
     </div>
-</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/js/intlTelInput.min.js"></script>
+
+    <script>
+    var phone_field = document.getElementById('phone');
+    phone_field.style.position = 'absolute';
+    phone_field.style.top = '-9999px';
+    phone_field.style.left = '-9999px';
+    phone_field.parentElement.insertAdjacentHTML('beforeend', '<div><input style="width:145%" class="form-control" type="tel" id="_phone"></div>');
+    var fancy_phone_field = document.getElementById('_phone');
 
 
-{% endblock content %}
+
+    var input = document.querySelector("#_phone"),
+    errorMsg = document.querySelector("#error-msg"),
+    validMsg = document.querySelector("#valid-msg");
+
+<!--    // here, the index maps to the error code returned from getValidationError - see readme-->
+    var errorMap = ["Invalid phone number", "Invalid country code", "Phone number too short", "Phone number too long", "Invalid phone number"];
+
+<!--    // initialise plugin-->
+    var iti = window.intlTelInput(input, {
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/js/utils.js"
+    });
+
+    var reset = function() {
+      input.classList.remove("error");
+      errorMsg.innerHTML = "";
+      errorMsg.classList.add("hide");
+    };
+
+<!--    // on blur: validate-->
+    input.addEventListener('blur', function() {
+      reset();
+      if (input.value.trim()) {
+        if (iti.isValidNumber()) {
+          validMsg.classList.remove("hide");
+        } else {
+          input.classList.add("error");
+          var errorCode = iti.getValidationError();
+          errorMsg.innerHTML = errorMap[errorCode];
+          errorMsg.classList.remove("hide");
+        }
+      }
+    });
+
+<!--    // on keyup / change flag: reset-->
+    input.addEventListener('change', reset);
+    input.addEventListener('keyup', reset);
+
+
+    var fancy_phone_iti = document.querySelector("#_phone");
+    window.intlTelInput(fancy_phone_iti, {
+      initialCountry: "auto",
+      geoIpLookup: function(callback) {
+        $.get('https://ipinfo.io', function() {}, "jsonp").always(function(resp) {
+          var countryCode = (resp && resp.country) ? resp.country : "us";
+          callback(countryCode);
+        });
+      },
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/js/utils.js",
+    });
+
+
+    fancy_phone_iti.setNumber(phone_field.value);
+    fancy_phone_field.addEventListener('blur', function() {
+        phone_field.value = fancy_phone_iti.getNumber();
+    });
+
+    </script>
+
+
+    {% endblock content %}

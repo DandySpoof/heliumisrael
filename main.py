@@ -472,6 +472,7 @@ def register():
 
 	if form.validate_on_submit():
 		detected_user = User.query.filter_by(email=form.email.data).first()
+		#TODO: need phone field cleanup for standardization
 
 		if detected_user == None:
 			hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
@@ -494,7 +495,7 @@ def register():
 			print(f"New registration - {new_user}")
 
 			phone = new_user.phone.strip().replace("-", "")
-			request_verification_token(f"+972{phone}")
+			request_verification_token(phone)
 
 			return redirect(url_for("verify"))
 
@@ -515,7 +516,7 @@ def verify():
 		phone = current_user.phone.strip().replace("-", "")
 		token = form.token.data
 		print(token)
-		verification = check_verification_token(f"+972{phone}",token)
+		verification = check_verification_token(phone,token)
 		print(verification)
 
 		if verification:
