@@ -515,9 +515,9 @@ def verify():
 	if form.validate_on_submit():
 		phone = current_user.phone.strip().replace("-", "")
 		token = form.token.data
-		print(token)
+		# print(token)
 		verification = check_verification_token(phone,token)
-		print(verification)
+		# print(verification)
 
 		if verification:
 			current_user.verified = True
@@ -526,7 +526,7 @@ def verify():
 			return redirect(url_for("home"))
 		else:
 			flash("Wrong token - please try again.")
-			print("Not verified")
+			print("Wrong token")
 
 	return render_template("verify.html", form=form)
 

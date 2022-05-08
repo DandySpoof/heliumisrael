@@ -35,8 +35,8 @@ def request_verification_token(phone):
 
 def check_verification_token(phone, token):
 	client = _get_twilio_verify_client()
-	print(f"AUTH FUNCTION{token}")
-	print(f"AUTH FUNCTION {phone}")
+	# print(f"AUTH FUNCTION - {token}")
+	# print(f"AUTH FUNCTION - {phone}")
 
 	try:
 		result = verification_check = client.verify \
@@ -45,11 +45,7 @@ def check_verification_token(phone, token):
 			.create(to=phone, code=token)
 
 	except TwilioRestException:
-		print("Wrong token")
-		# result = verification_check = client.verify \
-		# 	.services(service_sid) \
-		# 	.verification_checks \
-		# 	.create(to=phone, code=token)
+		# print("Wrong token")
 		return False
 
 	# print(result.status)
