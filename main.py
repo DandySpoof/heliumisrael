@@ -74,7 +74,7 @@ class User(UserMixin, db.Model):
 	verified = db.Column(db.Boolean, nullable=False)
 	allow_ads =db.Column(db.Boolean, nullable=False)
 	role = db.Column(db.Text)
-	#TODO: add registration timestamp
+	time_stamp = db.Column(db.DateTime, nullable=False)
 
 	wallets = relationship("Wallet", back_populates="user")
 
@@ -482,7 +482,8 @@ def register():
 				email=form.email.data,
 				password=hash,
 				verified=0,
-				allow_ads=form.allow_ads.data
+				allow_ads=form.allow_ads.data,
+				time_stamp=datetime.now(),
 			)
 
 			db.session.add(new_user)

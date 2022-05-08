@@ -204,3 +204,6 @@ import requests as rq
 #
 # print(verification_check.status)
 
+from datetime import datetime,date, time
+
+print(datetime.now())

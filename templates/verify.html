@@ -9,31 +9,32 @@
 
 <header class="masthead" style="background-image: url({{ url_for('static', filename='img/helium-map.png') }}) ">
 
-{% endblock h_image %}
+    {% endblock h_image %}
 
 
-{% block h_title %}
+    {% block h_title %}
 
-<h1>Verify</h1>
-<span class="subheading">Let us know it's really you</span>
+    <h1>Verify</h1>
+    <span class="subheading">Let us know it's really you</span>
 
-{% endblock h_title %}
+    {% endblock h_title %}
 
 
-{% block content %}
+    {% block content %}
 
     {% set messages = get_flashed_messages() %}
     {% if messages %}
     <p style="color:red; text-align:center">{{ messages[0] }}</p>
     {% endif %}
 
-<div class="container verify">
-    <div class="row justify-content-center">
-        <div class="col">
-            {{ render_form(form, action='', method="post", novalidate=True ) }}
+    <div class="container verify">
+        <div class="row justify-content-center">
+            <div class="col">
+                {{ render_form(form, action='', method="post", novalidate=True ) }}
+            </div>
         </div>
+        <p style="font-size:12px"><sup>*</sup>Your token is good for 10 minutes</p>
     </div>
-</div>
-<!--TODO: add send new code button-->
+    <!--TODO: add send new code button-->
 
-{% endblock content %}
+    {% endblock content %}

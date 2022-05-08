@@ -66,7 +66,7 @@ class LoginForm(RedirectForm):
 	email = EmailField("Email:", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
 	password = PasswordField("Password:", validators=[DataRequired("Please enter your password")])
-	submit = SubmitField("Register")
+	submit = SubmitField("Login")
 
 class CommentForm(FlaskForm):
 	body = CKEditorField("Comment", validators=[DataRequired("Please write somthing")])

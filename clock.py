@@ -11,7 +11,7 @@ sched = BlockingScheduler()
 
 
 
-@sched.scheduled_job('interval', mintes=10)
+@sched.scheduled_job('interval', minutes=10)
 def miners_data():
     # q.enqueue(get_miners_data)
     print("I get miners data")
