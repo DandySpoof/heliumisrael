@@ -2,14 +2,14 @@ from pytz import utc
 from rq import Queue
 from worker import conn
 from collections.abc import Mapping
-from utils import get_miners_data, get_all_hotspots_for_all_wallets
+from utils import get_miners_data, get_all_hotspots_for_all_wallets, commit_prices_to_db
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 q = Queue(connection=conn)
 sched = BlockingScheduler()
 
-
+commit_prices_to_db()
 
 @sched.scheduled_job('interval', minutes=10)
 def miners_data():

@@ -4,6 +4,7 @@ import requests as rq
 from time import sleep
 from main import db, Miner, Wallet, NewUser, Prices
 from dateutil import parser
+import csv
 
 
 def get_miners_data():
@@ -233,3 +234,18 @@ def get_all_hotspots_for_all_wallets():
 		db.session.commit()
 		sleep(2)
 
+def commit_prices_to_db():
+	with open("HNT-USD.csv", newline='') as data:
+	    reader = csv.reader(data)
+	    count = 0
+	    for row in reader:
+	        print(row[0], row[4])
+	        if count == 0:
+	            count += 1
+	            continue
+	        new_price_entry = Prices(
+	            date=row[0],
+	            price=row[4]
+	        )
+	        db.session.add(new_price_entry)
+	    db.session.commit()
