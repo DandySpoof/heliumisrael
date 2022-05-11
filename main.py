@@ -74,7 +74,7 @@ class Prices(db.Model):
 	def __repr__(self):
 		return f"date: {self.date} - Price: {self.price}"
 
-db.create_all()
+# db.create_all()
 
 class User(UserMixin, db.Model):
 	__tablename__ = "users"
