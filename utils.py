@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from random import randint
 import requests as rq
 from time import sleep
-from main import Miner, Wallet, NewUser, db
+from main import db, Miner, Wallet, NewUser, Prices
 from dateutil import parser
 
 
@@ -181,6 +181,7 @@ def get_miners_data():
 			print(ex)
 			print(ex.args)
 			continue
+
 
 def get_all_hotspots_for_all_wallets():
 	wallets = Wallet.query.all()

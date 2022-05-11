@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% from 'bootstrap/form.html' import render_form %}
+
+
+{% block title %}Helium Israel{% endblock title %}
+
+
+{% block h_image %}
+
+<header class="masthead" style="background-image: url({{ url_for('static', filename='img/helium-map.png') }}) ">
+
+    {% endblock h_image %}
+
+
+    {% block h_title %}
+
+    <h1>Price Chart</h1>
+    <span class="subheading">HNT - 6 Months</span>
+
+    {% endblock h_title %}
+
+
+    {% block content %}
+
+    <script type="text/javascript">
+    window.onload = function () {
+    var chart = new CanvasJS.Chart("chartContainer",
+    {
+      backgroundColor: "#e6fff9",
+      title:{
+      text: "HNT/$ - Daily"
+      },
+      exportEnabled: false,
+      zoomEnabled: true,
+      toolbar: {
+	    itemBackgroundColor: "#d3d3d3",
+        itemBackgroundColorOnHover: "#3e3e3e",
+	    buttonBorderColor: "#3e3e3e",
+      },
+       data: [
+      {
+        type: "line",
+
+        dataPoints: [
+        {% for p in prices %}
+        {% set year=p['date'][0:4] %}
+        {% set day=p['date'][5:7] %}
+        {% set month=p['date'][8:10] %}
+        {% set price=p['price'] %}
+
+        { x: new Date({{ year | int() }}, {{ day | int() }}, {{ month | int() }}), y: {{ price | float() }} },
+
+        {% endfor %}
+        ]
+      }
+      ]
+    })};
+
+
+
+    </script>
+
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+    <div class="container">
+        <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+    </div>
+    {% endblock content %}
+

@@ -62,7 +62,19 @@ def load_user(user_id):
 	return User.query.get(int(user_id))
 
 
-## Construct miners data base
+## Construct data base tables
+
+
+class Prices(db.Model):
+	__tablename__ = "prices"
+	id = db.Column(db.Integer, primary_key=True, nullable=False)
+	date = db.Column(db.Text, nullable=False)
+	price = db.Column(db.Float, nullable=False)
+
+	def __repr__(self):
+		return f"date: {self.date} - Price: {self.price}"
+
+db.create_all()
 
 class User(UserMixin, db.Model):
 	__tablename__ = "users"
@@ -120,6 +132,7 @@ class Miner(db.Model):
 
 	def __repr__(self):
 		return f"name: {self.name} - City: {self.city}"
+
 
 
 # Line below only required once, when creating DB.
@@ -359,7 +372,10 @@ def only_not_verified(func):
 
 
 def get_oracle_price():
-	response = rq.get("https://api.helium.io/v1/oracle/prices/current")
+	try:
+		response = rq.get("https://api.helium.io/v1/oracle/prices/current")
+	except:
+		return 0
 	response = response.json()
 	price = str(response["data"]["price"])
 	hnt = f"${price[:2]}.{price[2:4]}"
@@ -445,10 +461,6 @@ def latest_miners():
 	                       miners_count=total_online_miners, t_wallets=total_wallets_count, latest=latest_miners_count)
 
 
-@app.route("/hnt-price")
-def price():
-	return get_oracle_price()
-	# Show intractive price chart
 
 
 @app.route("/wallet/<address>")
@@ -557,13 +569,18 @@ def logout():
 	logout_user()
 	return redirect(url_for("home"))
 
+@app.route("/price")
+def price_chart():
+	prices = Prices.query.all()
+
+	return render_template("prices.html", prices=prices)
 
 @app.route("/dashboard")
 @login_required
 def dashboard():
-	print(current_user.name)
-	return f"<p> {current_user.name} dashboard</p>"
-
+	# print(current_user.name)
+	# return f"<p> {current_user.name} dashboard</p>"
+	return render_template("dashboard.html")
 
 @app.route("/contact")
 def contact():
