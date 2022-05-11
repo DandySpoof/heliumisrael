@@ -374,6 +374,7 @@ def only_not_verified(func):
 def get_oracle_price():
 	try:
 		response = rq.get("https://api.helium.io/v1/oracle/prices/current")
+		response.raise_for_status()
 	except:
 		return 0
 	response = response.json()
