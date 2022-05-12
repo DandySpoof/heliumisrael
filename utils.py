@@ -249,3 +249,121 @@ def commit_prices_to_db():
 	        )
 	        db.session.add(new_price_entry)
 	    db.session.commit()
+
+
+def update_daily_price():
+	"""
+	GET LAST DAY AVARAGE HNT PRICES, Checks the latest entry in prices table,
+	if exist, it will update it to the current price avarage of that day.
+	If not exist, will create a new entry of the new date and will update it to the current price avarage of that day.
+	"""
+
+	prices = {}
+	tmp_date = ""
+	tmp_price_list = []
+	cursor = ""
+
+	for n in range(3):
+		headers = {
+			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
+		}
+
+		if not cursor:
+			url = "https://api.helium.io/v1/oracle/prices"
+		else:
+			url = "https://api.helium.io/v1/oracle/prices" + cursor
+
+		try:
+			response = rq.get(url, headers=headers)
+			response.raise_for_status()
+		except Exception as ex:
+			print(f"{ex} - sleep 60 sec")
+
+			while True:
+				print("second exeption sleep")
+				sleep(1)
+				try:
+					response = rq.get(url, headers=headers)
+					response.raise_for_status()
+				except Exception as ex:
+					print(f"{ex} - Tried to fetch price again with no succses")
+					continue
+				break
+
+		data = response.json()
+
+		# print(data)
+		cursor = f"?cursor={data['cursor']}"
+		# print(cursor)
+
+		# print(f"there are {len(data['data'])} price stamps in data['data']")
+
+		for d in data["data"]:
+			# date = parser.parse(d["timestamp"]).date()
+			date = d["timestamp"][0:10]
+			price = round(float(d["price"] / 100000000), 3)
+
+			# print(f"date - {date}")
+
+			if not tmp_date:
+				# print(f"tmp_date length - {tmp_date}")
+				tmp_date = date
+				tmp_price_list.append(price)
+
+			elif date == tmp_date:
+				# print(f"tmp_date length - {tmp_date}")
+				tmp_price_list.append(price)
+
+			else:
+				# print(f"tmp_price_list lentgh - {len(tmp_price_list)}")
+
+				if n == 0 and len(tmp_price_list) < 100:
+					avarage_price = sum(tmp_price_list) / len(tmp_price_list)
+					print(f"Under 100 {tmp_date} - {avarage_price}")
+					prices[str(tmp_date)] = round(avarage_price, 3)
+
+					last_price = Prices.query.filter_by(date=tmp_date).first()
+
+					if last_price != None:
+						last_price.price = round(avarage_price, 6)
+					else:
+						new_price_entry = Prices(
+							date=tmp_date,
+							price=round(avarage_price, 6)
+						)
+						db.session.add(new_price_entry)
+
+					db.session.commit()
+
+					tmp_date = ""
+					tmp_price_list = []
+					break
+
+				elif len(tmp_price_list) > 100:
+					avarage_price = sum(tmp_price_list) / len(tmp_price_list)
+					print(f"{tmp_date} - {avarage_price}")
+					prices[str(tmp_date)] = round(avarage_price, 3)
+
+					last_price = Prices.query.filter_by(date=tmp_date).first()
+
+					if last_price != None:
+						last_price.price = round(avarage_price, 6)
+					else:
+						new_price_entry = Prices(
+							date=tmp_date,
+							price=round(avarage_price, 6)
+						)
+						db.session.add(new_price_entry)
+
+					db.session.commit()
+
+					tmp_date = ""
+					tmp_price_list = []
+					break
+
+				else:
+					# print(f"n = {n} and tmp_price_list lentgh - {len(tmp_price_list)}")
+					continue
+
+		sleep(1)
+	print(prices)

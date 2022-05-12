@@ -574,8 +574,10 @@ def logout():
 @app.route("/price")
 def price_chart():
 	prices = Prices.query.all()
+	hnt = get_oracle_price()
 
-	return render_template("prices.html", prices=prices)
+
+	return render_template("prices.html", prices=prices, oracle_price=hnt)
 
 @app.route("/dashboard")
 @login_required
