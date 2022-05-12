@@ -416,7 +416,7 @@ import csv
 
 
 #------- ENTER HISTORICAL HNT PRICES FROM FILE TO DB (YAHOO FINANCE) -------------------
-
+#
 # with open("HNT-USD.csv", newline='') as data:
 #     reader = csv.reader(data)
 #     count = 0
