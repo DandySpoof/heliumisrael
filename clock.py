@@ -13,6 +13,7 @@ sched = BlockingScheduler()
 
 @sched.scheduled_job('interval', minutes=10)
 def miners_data():
+    print("I update the price chart")
     update_daily_price()
     # q.enqueue(get_miners_data)
     print("I get miners data")
