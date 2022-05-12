@@ -50,11 +50,13 @@
                 </div>
 
                 <div class="col-md-3">
-                    <div class="card-counter primary">
-                        <i class="fa fa-dollar-sign"></i>
-                        <span class="count-numbers">{{ oracle_price }}</span>
-                        <span class="count-name">Oracle Price</span>
-                    </div>
+                    <a href="{{ url_for('price_chart') }}">
+                        <div class="card-counter primary">
+                            <i class="fa fa-dollar-sign"></i>
+                            <span class="count-numbers">{{ oracle_price }}</span>
+                            <span class="count-name">Oracle Price</span>
+                        </div>
+                    </a>
                 </div>
 
             </div>

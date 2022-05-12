@@ -20,9 +20,7 @@
 
         <div class="container" id="homepage-counter">
             <div class="row">
-
                 <div class="col-md-3">
-
                     <div class="card-counter danger selected">
                         <i class="fa fa-wifi"></i>
                         <span class="count-numbers">{{ miners_count }}</span>
@@ -41,7 +39,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <a href="{{url_for('latest_miners')}}">
+                    <a href="{{ url_for('latest_miners') }}">
                         <div class="card-counter info">
                             <i class="fa fa-star"></i>
                             <span class="count-numbers">{{ latest }}</span>
@@ -51,7 +49,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <a href="#">
+                    <a href="{{ url_for('price_chart') }}">
                         <div class="card-counter primary">
                             <i class="fa fa-dollar-sign"></i>
                             <span class="count-numbers">{{ oracle_price }}</span>

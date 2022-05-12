@@ -379,7 +379,8 @@ def get_oracle_price():
 		return 0
 	response = response.json()
 	price = str(response["data"]["price"])
-	hnt = f"${price[:2]}.{price[2:4]}"
+	hnt = round(int(price) / 100000000 , 2)
+	# hnt = f"${price[:2]}.{price[2:4]}"
 	return hnt
 
 ## Construct APP structure

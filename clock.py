@@ -9,7 +9,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 q = Queue(connection=conn)
 sched = BlockingScheduler()
 
-commit_prices_to_db()
+# commit_prices_to_db()
 
 @sched.scheduled_job('interval', minutes=10)
 def miners_data():
