@@ -10,12 +10,16 @@ q = Queue(connection=conn)
 sched = BlockingScheduler()
 
 # commit_prices_to_db()
+# get_miners_data()
+# get_all_hotspots_for_all_wallets()
+# update_daily_price()
 
-@sched.scheduled_job('interval', minutes=10)
+
+@sched.scheduled_job('interval', minutes=5)
 def miners_data():
     print("I update the price chart")
     update_daily_price()
-    # q.enqueue(get_miners_data)
+    q.enqueue(get_miners_data)
     print("I get miners data")
     get_miners_data()
     print("I get wallets data")
