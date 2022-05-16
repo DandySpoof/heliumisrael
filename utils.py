@@ -258,7 +258,7 @@ def update_daily_price():
 	if exist, it will update it to the current price avarage of that day.
 	If not exist, will create a new entry of the new date and will update it to the current price avarage of that day.
 	"""
-
+	# print("I update helium price")
 	prices = {}
 	tmp_date = ""
 	tmp_price_list = []

@@ -17,17 +17,18 @@ sched = BlockingScheduler()
 
 @sched.scheduled_job('interval', minutes=5)
 def miners_data():
-    print("I update the price chart")
-    update_daily_price()
+    # print("I update the price chart")
+    # update_daily_price()
     q.enqueue(get_miners_data)
     print("I get miners data")
     get_miners_data()
     print("I get wallets data")
     get_all_hotspots_for_all_wallets()
 
-# @sched.scheduled_job('interval',  seconds=10)
-# def print_function():
-#     print("i print every 10 seconds")
+@sched.scheduled_job('interval',  seconds=60)
+def update_price_chart():
+    print("I update the price chart")
+    q.enqueue(utils.update_daily_price)
 
 # @sched.scheduled_job('interval',  hours=6)
 # def wallets_data():
