@@ -28,7 +28,7 @@ def miners_data():
 @sched.scheduled_job('interval',  seconds=60)
 def update_price_chart():
     print("I update the price chart")
-    q.enqueue(utils.update_daily_price)
+    q.enqueue(update_daily_price)
 
 # @sched.scheduled_job('interval',  hours=6)
 # def wallets_data():
