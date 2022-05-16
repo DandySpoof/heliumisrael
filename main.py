@@ -582,7 +582,7 @@ def logout():
 @app.route("/price")
 def price_chart():
 	prices = Prices.query.all()
-	q.enqueue(update_daily_price)  ###
+	# q.enqueue(update_daily_price)  ###
 	hnt = get_oracle_price()
 
 
