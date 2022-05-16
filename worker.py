@@ -1,7 +1,7 @@
-import os
-from collections.abc import Mapping
-import redis
+# from collections.abc import Mapping
 # from urllib.parse import urlparse
+import os
+import redis
 from rq import Worker, Queue, Connection
 
 listen = ['high', 'default', 'low']

@@ -368,4 +368,4 @@ def update_daily_price():
 					continue
 
 		sleep(1)
-	print(prices)
+	return prices

@@ -17,9 +17,9 @@ from flask_bootstrap import Bootstrap5
 # from wtforms import StringField, SubmitField
 # from wtforms.validators import DataRequired, URL
 
-# from rq import Queue
-# from worker import conn
-# import utils
+from rq import Queue
+from worker import conn
+import utils
 
 from dateutil import parser
 from forms import CreatePostForm, NewUser, LoginForm, CommentForm, Confirm2faForm
@@ -31,7 +31,7 @@ from twilio.rest import Client
 
 
 # ESTABLISH CONNECTION TO WORKER
-# q = Queue(connection=conn)
+q = Queue(connection=conn)
 
 # --- CREATE and CONFING Flask APP
 app = Flask(__name__)
@@ -582,6 +582,8 @@ def logout():
 @app.route("/price")
 def price_chart():
 	prices = Prices.query.all()
+	update = q.enqueue(utils.update_daily_price)
+	print(update)
 	hnt = get_oracle_price()
 
 
