@@ -234,6 +234,7 @@ def get_all_hotspots_for_all_wallets():
 		db.session.commit()
 		sleep(2)
 
+
 def commit_prices_to_db():
 	with open("HNT-USD.csv", newline='') as data:
 	    reader = csv.reader(data)

@@ -17,9 +17,9 @@ from flask_bootstrap import Bootstrap5
 # from wtforms import StringField, SubmitField
 # from wtforms.validators import DataRequired, URL
 
-from rq import Queue
-from worker import conn
-from utils import *
+# from rq import Queue
+# from worker import conn
+# from utils import *
 
 from dateutil import parser
 from forms import CreatePostForm, NewUser, LoginForm, CommentForm, Confirm2faForm
