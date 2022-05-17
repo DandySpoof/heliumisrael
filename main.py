@@ -193,7 +193,7 @@ class Activity(db.Model):
 
 
 # Line below only required once, for creating DB.
-db.create_all()
+# db.create_all()
 
 
 ##Security gateway function that allows only un-verified users (verified=0) to enter the verify route
