@@ -72,7 +72,6 @@ def load_user(user_id):
 
 ## Construct data base tables
 
-
 class Prices(db.Model):
 	__tablename__ = "prices"
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -82,7 +81,6 @@ class Prices(db.Model):
 	def __repr__(self):
 		return f"date: {self.date} - Price: {self.price}"
 
-# db.create_all()
 
 class User(UserMixin, db.Model):
 	__tablename__ = "users"
@@ -92,17 +90,17 @@ class User(UserMixin, db.Model):
 	email = db.Column(db.String(70), unique=True, nullable=False)
 	password = db.Column(db.Text, nullable=False)
 	verified = db.Column(db.Boolean, nullable=False)
-	allow_ads =db.Column(db.Boolean, nullable=False)
+	allow_ads = db.Column(db.Boolean, nullable=False)
 	role = db.Column(db.Text)
 	time_stamp = db.Column(db.DateTime, nullable=False)
 
 	wallets = relationship("Wallet", back_populates="user")
+	posts = relationship("Post", back_populates="user")
+	comments = relationship("Comment", back_populates="user")
+	messages = relationship("Message", back_populates="user")
 
 	def __repr__(self):
 		return f"User ID: {self.id}"
-
-
-# db.create_all()
 
 
 class Wallet(db.Model):
@@ -120,7 +118,50 @@ class Wallet(db.Model):
 		return f"Wallet: {self.address}"
 
 
-# db.create_all()
+class Post(db.Model):
+	__tablename__ = "posts"
+	id = db.Column(db.Integer, primary_key=True, nullable=False)
+	category = db.Column(db.String(20), nullable=False)
+	title = db.Column(db.String(40), nullable=False) #TODO Add input validation on front end / form
+	subtitle = db.Column(db.String(60))
+	body = db.Column(db.Text, nullable=False)
+	approved = db.Column(db.Boolean, nullable=False)
+	time_stamp = db.Column(db.DateTime, nullable=False)
+
+	comments = relationship("Comment", back_populates="post")
+
+	user_id = db.Column(db.Integer, ForeignKey("users.id"))
+	user = relationship("User", back_populates="posts")
+
+	def __repr__(self):
+		return f"User {self.user_id} - post tile {self.title}"
+
+
+class Comment(db.Model):
+	__tablename__ = "comments"
+	id = db.Column(db.Integer, primary_key=True, nullable=False)
+	body = db.Column(db.Text, nullable=False) #TODO Add input validation on front end / form
+	approved = db.Column(db.Boolean, nullable=False)
+	time_stamp = db.Column(db.DateTime, nullable=False)
+
+	user_id = db.Column(db.Integer, ForeignKey("users.id"))
+	user = relationship("User", back_populates="comments")
+
+	post_id = db.Column(db.Integer, ForeignKey("posts.id"))
+	post = relationship("Post", back_populates="comments")
+
+
+class Message(db.Model):
+	__tablename__ = "messages"
+	id = db.Column(db.Integer, primary_key=True, nullable=False)
+	title = db.Column(db.String(120), nullable=False)  # TODO Add input validation on front end / form
+	body = db.Column(db.Text, nullable=False) # TODO Add input validation on front end / form
+	time_stamp = db.Column(db.DateTime, nullable=False)
+	recipient = db.Column(db.Integer, nullable=False) #user id
+
+	user_id = db.Column(db.Integer, ForeignKey("users.id"))
+	user = relationship("User", back_populates="messages")
+
 
 class Miner(db.Model):
 	__tablename__ = "miners"
@@ -142,229 +183,18 @@ class Miner(db.Model):
 		return f"name: {self.name} - City: {self.city}"
 
 
-
-# Line below only required once, when creating DB.
-# db.create_all()
-
-def get_miners_data():
-	headers = {
-		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
-	}
-
-	# Get all hotspots in Israel
-	israel_box = {
-		"cursor": None,
-		"swlat": 29.4255538961337,
-		"swlon": 34.46116814079567,
-		"nelat": 33.03202086923252,
-		"nelon": 35.613699832312264,
-	}
-
-	url = "https://api.helium.io/v1/hotspots/location/box"
-	try:
-		response = rq.get(url, headers=headers, params=israel_box)
-		response.raise_for_status()
-	except Exception as ex:
-		print(ex)
-		sleep(60)
-		get_miners_data()
-
-	data = response.json()
-
-	miners = data["data"]
-	# print(miners)
-
-	time = datetime.now()
-	last_7_days = time - timedelta(days=7)
-	last_30_days = time - timedelta(days=30)
-
-	count = 0
-	for m in miners:
-		sleep(2)
-		count += 1
-		print(f"{count} - {m['name']}")
-
-		url = f"https://api.helium.io/v1/hotspots/{m['address']}/rewards/sum"
-		parameters = {
-			"max_time": time.isoformat(),
-			"min_time": last_7_days.isoformat(),
-		}
-		try:
-			response = rq.get(url, headers=headers, params=parameters)
-			response.raise_for_status()
-		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
-			try:
-				response = rq.get(url, headers=headers, params=parameters)
-				response.raise_for_status()
-			except Exception as ex:
-				print(f"{ex} continiue")
-				continue
-
-		data_7 = response.json()
-		earining_7 = float(data_7["data"]['sum']) / 100000000
-		print(earining_7)
-		sleep(2)
-
-		url = f"https://api.helium.io/v1/hotspots/{m['address']}/rewards/sum"
-		parameters = {
-			"max_time": time.isoformat(),
-			"min_time": last_30_days.isoformat(),
-		}
-
-		try:
-			response = rq.get(url, headers=headers, params=parameters)
-			response.raise_for_status()
-		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
-			try:
-				response = rq.get(url, headers=headers, params=parameters)
-				response.raise_for_status()
-			except Exception as ex:
-				print(f"{ex} continiue")
-				continue
-
-		data_30 = response.json()
-		earining_30 = float(data_30["data"]['sum']) / 100000000
-		print(earining_30)
-		sleep(2)
-
-		if Miner.query.filter_by(name=m['name']).first() == None:
-			if m['geocode']['long_country'] == None:
-				country = "Israel"
-			else:
-				country = m['geocode']['long_country']
-
-			miner = Miner(
-				name=m['name'],
-				address=m['address'],
-				added=parser.parse(m['timestamp_added']),
-				city=m['geocode']['long_city'],
-				country=country,
-				street=m['geocode']['long_street'],
-				online=m['status']['online'],
-				earnings_7=earining_7,
-				earnings_30=earining_30,
-				wallet_address=m["owner"],
-			)
-			db.session.add(miner)
-
-			print(miner)
-			print(f"{m['name']} - whole record was added to db\n-------------------------------------------------->")
-		else:
-			# break  #USE this break to only update the db with new miners
-			miner = Miner.query.filter_by(name=m['name']).first()
-
-			if m['geocode']['long_country'] == None:
-				country = "Israel"
-			else:
-				country = m['geocode']['long_country']
-
-			miner.city = m['geocode']['long_city']
-			miner.country = country #m['geocode']['long_country']
-			miner.street = m['geocode']['long_street']
-			miner.online = m['status']['online']
-			miner.earnings_7 = earining_7
-			miner.earnings_30 = earining_30
-
-			print(miner)
-			print("db recored udpated\n-------------------------------------------------->")
-
-		if Wallet.query.filter_by(address=m["owner"]).first() == None:
-			new_wallet = Wallet(
-				address=m["owner"],
-				balance=0,
-			)
-			db.session.add(new_wallet)
-
-		try:
-			db.session.commit()
-		except Exception as ex:
-			print(ex)
-			print(ex.args)
-			continue
+class Activity(db.Model):
+	__tablename__ = "activity_log"
+	id = db.Column(db.Integer, primary_key=True, nullable=False)
+	time_stamp = db.Column(db.DateTime, nullable=False)
+	event = db.Column(db.Text, nullable=False)
+	user_id = db.Column(db.Integer, primary_key=True, nullable=False)
 
 
-# get_miners_data()
 
+# Line below only required once, for creating DB.
+db.create_all()
 
-def get_other_wallets_data():
-	wallets = Wallet.query.all()
-
-	headers = {
-		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
-	}
-
-	count = 0
-	for w in wallets:
-		url = f"https://api.helium.io/v1/accounts/{w.address}"
-		try:
-			response = rq.get(url, headers=headers)
-			response.raise_for_status()
-		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
-			try:
-				response = rq.get(url, headers=headers)
-				response.raise_for_status()
-			except Exception as ex:
-				print(f"{ex} continiue")
-				continue
-
-		wallet_data = response.json()
-		balance = int(wallet_data["data"]["balance"]) / 100000000
-		if balance == None:
-			w.balance = "N/A"
-		else:
-			w.balance = balance
-
-		count += 1
-		print(f"{count} - updated balnace for {w}  is: {balance} HNT")
-		sleep(2)
-
-		url = f"https://api.helium.io/v1/accounts/{w.address}/hotspots"
-		try:
-			response = rq.get(url, headers=headers)
-			response.raise_for_status()
-		except Exception as ex:
-			print(f"{ex} sleep 15 sec")
-			sleep(15)
-			try:
-				response = rq.get(url, headers=headers)
-				response.raise_for_status()
-			except Exception as ex:
-				print(f"{ex} continiue")
-				continue
-
-		miners_for_wallet = response.json()
-		for m in miners_for_wallet["data"]:
-			time = datetime.now()
-			if Miner.query.filter_by(address=m["address"]).first() == None:
-				new_miner = Miner(
-					name=m['name'],
-					address=m['address'],
-					added=time,
-					city=m['geocode']['long_city'],
-					country=m['geocode']['long_country'],
-					street=m['geocode']['long_street'],
-					online=m['status']['online'],
-					earnings_7=0.0,
-					earnings_30=0.0,
-					wallet_address=m["owner"],
-				)
-				db.session.add(new_miner)
-
-				print(new_miner)
-				print(
-					f"{m['name']} - A new, non-israeli miner was added to db\n---------------------------------------------->")
-
-
-		db.session.commit()
-
-
-# get_other_wallets_data()
 
 ##Security gateway function that allows only un-verified users (verified=0) to enter the verify route
 def only_not_verified(func):
@@ -388,8 +218,8 @@ def get_oracle_price():
 	response = response.json()
 	price = str(response["data"]["price"])
 	hnt = round(int(price) / 100000000 , 2)
-	# hnt = f"${price[:2]}.{price[2:4]}"
 	return hnt
+
 
 ## Construct APP structure
 @app.route("/")
@@ -469,8 +299,6 @@ def latest_miners():
 
 	return render_template("latest.html", oracle_price=hnt, miners=latest_miners, other_miners=other_miners,
 	                       miners_count=total_online_miners, t_wallets=total_wallets_count, latest=latest_miners_count)
-
-
 
 
 @app.route("/wallet/<address>")
@@ -579,17 +407,16 @@ def logout():
 	logout_user()
 	return redirect(url_for("home"))
 
+
 @app.route("/price")
 def price_chart():
 	prices = Prices.query.all()
 	tdy_avg = round(prices[-1].price,2)
 	print(tdy_avg)
-	# update = q.enqueue(utils.update_daily_price)
-	# print(update)
 	hnt = get_oracle_price()
 
-
 	return render_template("prices.html", prices=prices, oracle_price=hnt, daily_avarage=tdy_avg)
+
 
 @app.route("/dashboard")
 @login_required
@@ -597,6 +424,7 @@ def dashboard():
 	# print(current_user.name)
 	# return f"<p> {current_user.name} dashboard</p>"
 	return render_template("dashboard.html")
+
 
 @app.route("/contact")
 def contact():

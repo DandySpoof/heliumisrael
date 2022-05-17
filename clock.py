@@ -3,11 +3,11 @@ from rq import Queue
 from worker import conn
 from collections.abc import Mapping
 from utils import get_miners_data, get_all_hotspots_for_all_wallets, commit_prices_to_db, update_daily_price
-
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 q = Queue(connection=conn)
 sched = BlockingScheduler()
+
 
 # commit_prices_to_db()
 # get_miners_data()

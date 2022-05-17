@@ -11,3 +11,11 @@ c. clock.py (type in terminal python clock.py)
 
 
 
+
+DB mapping:
+users - wallets, posts, comments, messages
+wallets - (user), miners
+miners - (wallet)
+posts - (user), comments
+comments - (user), (post)
+messages - (user)

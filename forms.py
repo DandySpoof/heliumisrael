@@ -47,13 +47,24 @@ class RedirectForm(FlaskForm):
 class CreatePostForm(FlaskForm):
 	title = StringField("Blog Post Title", validators=[DataRequired("Please enter title")])
 	subtitle = StringField("Subtitle", validators=[DataRequired("Please enter subtitle")])
-	img_url = StringField("Blog Image URL", validators=[DataRequired("Please enter url"), URL("Please enter a valid url")])
+	# img_url = StringField("Blog Image URL", validators=[DataRequired("Please enter url"), URL("Please enter a valid url")])
 	body = CKEditorField("Blog Content", validators=[DataRequired("Please write somthing")])
 	submit = SubmitField("Submit Post")
 
 
+class CommentForm(FlaskForm):
+	body = CKEditorField("Comment", validators=[DataRequired("Please write something")])
+	submit = SubmitField("Submit Comment")
+
+
+class MessageForm(FlaskForm):
+	title = StringField("Title", validators=[DataRequired("Please enter title")])
+	body = CKEditorField("Message Content", validators=[DataRequired("Please write somthing")])
+	submit = SubmitField("Send")
+
+
 class NewUser(UserMixin, FlaskForm):
-	name = StringField("Name:*", validators=[DataRequired("Please enter your name")])
+	name = StringField("Nickname:*", validators=[DataRequired("Please enter your name")])
 	email = EmailField("Email:*", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
 	phone = StringField("Phone:*", validators=[DataRequired("Please enter your password")])
@@ -68,9 +79,6 @@ class LoginForm(RedirectForm):
 	password = PasswordField("Password:", validators=[DataRequired("Please enter your password")])
 	submit = SubmitField("Login")
 
-class CommentForm(FlaskForm):
-	body = CKEditorField("Comment", validators=[DataRequired("Please write somthing")])
-	submit = SubmitField("Submit Comment")
 
 class Confirm2faForm(FlaskForm):
     token = StringField("Enter token", validators=[DataRequired("Please enter your token")])
