@@ -16,7 +16,7 @@
     {% block h_title %}
 
     <h1>Price Chart</h1>
-    <span class="subheading">HNT - 6 Months</span>
+    <span class="subheading">HNT - All times</span>
 
     {% endblock h_title %}
 
@@ -29,7 +29,7 @@
     {
       backgroundColor: "#e6fff9",
       title:{
-      text: "Daily - {{ oracle_price }} HNT/$"
+      text: "Today's avarage price {{ daily_avarage }}  |  Current - {{ oracle_price }} HNT/$"
       },
       exportEnabled: false,
       zoomEnabled: true,

@@ -335,7 +335,6 @@ def update_daily_price():
 						db.session.add(new_price_entry)
 
 					db.session.commit()
-					print(round(avarage_price, 6))
 
 					tmp_date = ""
 					tmp_price_list = []
@@ -358,7 +357,7 @@ def update_daily_price():
 						db.session.add(new_price_entry)
 
 					db.session.commit()
-					print(round(avarage_price, 6))
+					# print(round(avarage_price, 6))
 					tmp_date = ""
 					tmp_price_list = []
 					break

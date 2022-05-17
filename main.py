@@ -582,12 +582,14 @@ def logout():
 @app.route("/price")
 def price_chart():
 	prices = Prices.query.all()
+	tdy_avg = round(prices[-1].price,2)
+	print(tdy_avg)
 	# update = q.enqueue(utils.update_daily_price)
 	# print(update)
 	hnt = get_oracle_price()
 
 
-	return render_template("prices.html", prices=prices, oracle_price=hnt)
+	return render_template("prices.html", prices=prices, oracle_price=hnt, daily_avarage=tdy_avg)
 
 @app.route("/dashboard")
 @login_required
