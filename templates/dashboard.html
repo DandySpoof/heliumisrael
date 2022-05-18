@@ -195,9 +195,12 @@
                                 <hr>
                                 {% endfor %}
                             </div>
-                            <div id="messages" role="tabpanel" aria-labelledby="contact-tab"
+
+                            <div id="messages" role="tabpanel" aria-labelledby="messages-tab"
                                  class="tab-pane fade px-4 py-5">
-                                {% for msg in user_messages %}
+                                {% for chat in user_chats if not chat.hide %}
+                                {% set messages = message_class.query.filter_by(chat_id=chat.id).all() %}
+                                {% for msg in messages %}
                                 <div class="row">
                                     <div class="col-sm-8">
                                         <h6>{{ msg.title }}</h6>
@@ -210,6 +213,7 @@
                                     </div>
                                 </div>
                                 <hr>
+                                {% endfor %}
                                 {% endfor %}
 
                             </div>

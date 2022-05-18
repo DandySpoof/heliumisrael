@@ -10,7 +10,7 @@ from flask import Flask, render_template, request, url_for, redirect, flash, sen
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, or_
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user, login_fresh
 from flask_bootstrap import Bootstrap5
 # from flask_wtf import FlaskForm
@@ -154,14 +154,32 @@ class Comment(db.Model):
 class Message(db.Model):
 	__tablename__ = "messages"
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
+	chat_id = db.Column(db.Integer, ForeignKey("chats.id"))
+	user_id = db.Column(db.Integer, ForeignKey("users.id"))
 	title = db.Column(db.String(120), nullable=False)  # TODO Add input validation on front end / form
 	body = db.Column(db.Text, nullable=False) # TODO Add input validation on front end / form
 	time_stamp = db.Column(db.DateTime, nullable=False)
 	recipient = db.Column(db.Integer, nullable=False) #recipiant user id
 	read = db.Column(db.Boolean, nullable=False)
 
-	user_id = db.Column(db.Integer, ForeignKey("users.id"))
+	chat = relationship("Chat", back_populates="messages")
 	user = relationship("User", back_populates="messages")
+
+	def __repr__(self):
+		return f"from: {self.id}, at {str(self.time_stamp)[:16]}"
+
+class Chat(db.Model):
+	__tablename__ = "chats"
+	id = db.Column(db.Integer, primary_key=True, nullable=False)
+	time_stamp = db.Column(db.DateTime, nullable=False)
+	user_1 = db.Column(db.Integer, nullable=False)
+	user_2 = db.Column(db.Integer, nullable=False)
+	hide = db.Column(db.Boolean, nullable=False)
+
+	messages = relationship("Message", back_populates="chat")
+
+	def __repr__(self):
+		return f"Chat id: {self.id}"
 
 
 class Miner(db.Model):
@@ -194,7 +212,7 @@ class Activity(db.Model):
 
 
 # Line below only required once, for creating DB.
-# db.create_all()
+db.create_all() #TODO DELETE messages and create meggases + chats on server
 
 
 ##Security gateway function that allows only un-verified users (verified=0) to enter the verify route
@@ -323,7 +341,6 @@ def register():
 	print(form.phone.data)
 	if form.validate_on_submit():
 		detected_user = User.query.filter_by(email=form.email.data).first()
-		#TODO: need phone field cleanup for standardization
 
 		if detected_user == None:
 			hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
@@ -427,10 +444,13 @@ def dashboard():
 	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
 	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
 	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
+	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
+	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
+	user_chats = as_user_1 + as_user_2
 
-	# user_miners = Miner.query.filter_by(wallet_address=wallet.address).all()
 	return render_template("dashboard.html", user_wallets=user_wallets, user_posts=user_posts,
-	                       user_messages=user_messages, miner_class=Miner, user_class=User)
+	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
+	                       user_chats=user_chats)
 
 
 @app.route("/contact")

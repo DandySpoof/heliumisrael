@@ -2,20 +2,20 @@ from datetime import datetime, timedelta
 from random import randint
 import requests as rq
 from time import sleep
-from main import db, Miner, Wallet, NewUser, Prices, Post, Comment, Message
+from main import db, Miner, Wallet, NewUser, Prices, Post, Comment, Message, Chat
 from dateutil import parser
 import csv
 
-new_post = Post(
-	category="Sell / Trade",
-	title="several things  for sale",
-	subtitle="ציוד היקפי",
-	body="New Senscape miner and RAK Antenna",
-	approved=True,
-	time_stamp=datetime.now(),
-	user_id=1,
-)
-db.session.add(new_post)
+# new_post = Post(
+# 	category="Sell / Trade",
+# 	title="several things  for sale",
+# 	subtitle="ציוד היקפי",
+# 	body="New Senscape miner and RAK Antenna",
+# 	approved=True,
+# 	time_stamp=datetime.now(),
+# 	user_id=1,
+# )
+# db.session.add(new_post)
 
 # new_comment = Comment(
 # 	body="This is a comment",
@@ -25,15 +25,24 @@ db.session.add(new_post)
 # 	post_id=1,
 # )
 
-# new_msg = Message(
-# 	title="Hi there, what's up?",
-# 	body="How are you these days",
+# new_chat = Chat(
 # 	time_stamp=datetime.now(),
-# 	recipient=3,
-# 	read=False,
-# 	user_id=1,
+# 	user_1=1,
+# 	user_2=2,
+# 	hide=False,
 # )
-# db.session.add(new_post)
+# db.session.add(new_chat)
+
+new_msg = Message(
+	chat_id=1,
+	user_id=2,
+	title="Hi man, I'm good!",
+	body="Where have you been?",
+	time_stamp=datetime.now(),
+	recipient=1,
+	read=False,
+)
+db.session.add(new_msg)
 db.session.commit()
 
 def get_miners_data():
