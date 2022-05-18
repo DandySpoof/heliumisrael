@@ -158,6 +158,7 @@ class Message(db.Model):
 	body = db.Column(db.Text, nullable=False) # TODO Add input validation on front end / form
 	time_stamp = db.Column(db.DateTime, nullable=False)
 	recipient = db.Column(db.Integer, nullable=False) #user id
+	read = db.Column(db.Boolean, nullable=False) #TODO Add this column to postgres on heroku
 
 	user_id = db.Column(db.Integer, ForeignKey("users.id"))
 	user = relationship("User", back_populates="messages")
@@ -423,7 +424,10 @@ def price_chart():
 def dashboard():
 	# print(current_user.name)
 	# return f"<p> {current_user.name} dashboard</p>"
-	return render_template("dashboard.html")
+	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
+
+	# user_miners = Miner.query.filter_by(wallet_address=wallet.address).all()
+	return render_template("dashboard.html", user_wallets=user_wallets, miner_class=Miner)
 
 
 @app.route("/contact")

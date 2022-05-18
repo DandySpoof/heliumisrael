@@ -21,7 +21,6 @@
     {% endblock h_title %}
 
 
-
     {% block content %}
 
     <div class="container">
@@ -29,10 +28,10 @@
             <div class="row gutters-sm">
                 <div class="col-md-4 mb-3">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body shadow">
                             <div class="d-flex flex-column align-items-center text-center">
                                 <img id="gravatar" src="{{ current_user.email | gravatar }}" alt="Admin"
-                                      width="150">
+                                     width="150">
                                 <div class="mt-3">
                                     <h4>John Doe</h4>
                                     <p class="text-secondary mb-1">Full Stack Developer</p>
@@ -111,61 +110,113 @@
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <h6 class="mb-0">Full Name</h6>
+
+                    <div class="p-5 bg-white rounded shadow mb-5">
+                        <!-- Lined tabs-->
+                        <ul id="myTab2" role="tablist"
+                            class="nav nav-tabs nav-pills with-arrow lined flex-column flex-sm-row text-center">
+                            <li class="nav-item flex-sm-fill">
+                                <a id="miners-tab" data-toggle="tab" href="#miners" role="tab" aria-controls="miners"
+                                   aria-selected="true"
+                                   class="nav-link text-uppercase font-weight-bold mr-sm-3 rounded-0 active">My
+                                    Miners</a>
+                            </li>
+                            <li class="nav-item flex-sm-fill">
+                                <a id="posts-tab" data-toggle="tab" href="#posts" role="tab"
+                                   aria-controls="posts" aria-selected="false"
+                                   class="nav-link text-uppercase font-weight-bold mr-sm-3 rounded-0">My Posts</a>
+                            </li>
+                            <li class="nav-item flex-sm-fill">
+                                <a id="messages-tab" data-toggle="tab" href="#messages" role="tab"
+                                   aria-controls="messages" aria-selected="false"
+                                   class="nav-link text-uppercase font-weight-bold rounded-0">Messages</a>
+                            </li>
+                        </ul>
+                        <div id="myTab2Content" class="tab-content">
+                            <div id="miners" role="tabpanel" aria-labelledby="home-tab"
+                                 class="tab-pane fade px-4 py-5 show active">
+                                {% for wallet in user_wallets %}
+                                {% set address = wallet.address %}
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h6>Wallet: {{ address[:6] + "....." + address[-15:-1] }}</h6>
+                                    </div>
+                                    <div class="col-4 text-secondary">
+                                        balance: {{ wallet.balance | round(2) }} HNT
+                                    </div>
                                 </div>
-                                <div class="col-sm-9 text-secondary">
-                                    Kenneth Valdez
+                                <hr>
+                                {% set user_miners = miner_class.query.filter_by(wallet_address=wallet.address).all() %}
+                                {%for miner in user_miners %}
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <h6 class="mb-0">{{ miner.name }}</h6>
+                                    </div>
+                                    <div class="col-4 text-secondary">
+                                        {{ miner.city }}
+                                    </div>
+                                    <div class="col-1 text-secondary">
+                                        {{ miner.earnings_7 | round(2) }}
+                                    </div>
+                                    <div class="col-1 text-secondary">
+                                        {{ miner.earnings_30 | round(2) }}
+                                    </div>
+                                    <div class="col-1 text-secondary">
+                                        {{ miner.online }}
+                                    </div>
                                 </div>
+
+                                {% endfor %}
+                                <hr>
+                                <br>
+                                {% endfor %}
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <a class="btn btn-info " target="__blank"
+                                           href="#">Claim a wallet</a>
+                                    </div>
+                                </div>
+
                             </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <h6 class="mb-0">Email</h6>
-                                </div>
-                                <div class="col-sm-9 text-secondary">
-                                    fip@jukmuh.al
-                                </div>
+                            <div id="posts" role="tabpanel" aria-labelledby="profile-tab"
+                                 class="tab-pane fade px-4 py-5">
+                                <p class="leade font-italic">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+                                    veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                                    consequat. Duis aute
+                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+                                    deserunt mollit anim id est laborum.</p>
+                                <p class="leade font-italic mb-0">Lorem ipsum dolor sit amet, consectetur adipisicing
+                                    elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                                    commodo consequat. Duis aute
+                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+                                    deserunt mollit anim id est laborum.</p>
                             </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <h6 class="mb-0">Phone</h6>
-                                </div>
-                                <div class="col-sm-9 text-secondary">
-                                    (239) 816-9029
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <h6 class="mb-0">Mobile</h6>
-                                </div>
-                                <div class="col-sm-9 text-secondary">
-                                    (320) 380-4539
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <h6 class="mb-0">Address</h6>
-                                </div>
-                                <div class="col-sm-9 text-secondary">
-                                    Bay Area, San Francisco, CA
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <a class="btn btn-info " target="__blank"
-                                       href="https://www.bootdey.com/snippets/view/profile-edit-data-and-skills">Edit</a>
-                                </div>
+                            <div id="messages" role="tabpanel" aria-labelledby="contact-tab"
+                                 class="tab-pane fade px-4 py-5">
+                                <p class="leade font-italic">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+                                    veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                                    consequat. Duis aute
+                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+                                    deserunt mollit anim id est laborum.</p>
+                                <p class="leade font-italic mb-0">Lorem ipsum dolor sit amet, consectetur adipisicing
+                                    elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                                    commodo consequat. Duis aute
+                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+                                    deserunt mollit anim id est laborum.</p>
                             </div>
                         </div>
+                        <!-- End lined tabs -->
                     </div>
+
 
                     <div class="row gutters-sm">
                         <div class="col-sm-6 mb-3">
@@ -242,5 +293,6 @@
 
         </div>
     </div>
+
 
     {% endblock content %}

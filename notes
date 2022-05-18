@@ -13,9 +13,15 @@ c. clock.py (type in terminal python clock.py)
 
 
 DB mapping:
-users - wallets, posts, comments, messages
+prices
 wallets - (user), miners
 miners - (wallet)
+
+users - wallets, posts, comments, messages
+
 posts - (user), comments
 comments - (user), (post)
 messages - (user)
+
+activity_log - What events to log?: registration, login, message sent, new post posted, new comment posted
+transactions
