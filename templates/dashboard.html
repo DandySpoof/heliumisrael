@@ -133,15 +133,15 @@
                             </li>
                         </ul>
                         <div id="myTab2Content" class="tab-content">
-                            <div id="miners" role="tabpanel" aria-labelledby="home-tab"
+                            <div id="miners" role="tabpanel" aria-labelledby="miners-tab"
                                  class="tab-pane fade px-4 py-5 show active">
                                 {% for wallet in user_wallets %}
                                 {% set address = wallet.address %}
                                 <div class="row">
-                                    <div class="col-8">
+                                    <div class="col-sm-8">
                                         <h6>Wallet: {{ address[:6] + "....." + address[-15:-1] }}</h6>
                                     </div>
-                                    <div class="col-4 text-secondary">
+                                    <div class="col-sm-4 text-secondary">
                                         balance: {{ wallet.balance | round(2) }} HNT
                                     </div>
                                 </div>
@@ -152,16 +152,16 @@
                                     <div class="col-sm-5">
                                         <h6 class="mb-0">{{ miner.name }}</h6>
                                     </div>
-                                    <div class="col-4 text-secondary">
+                                    <div class="col-sm-4 text-secondary">
                                         {{ miner.city }}
                                     </div>
-                                    <div class="col-1 text-secondary">
+                                    <div class="col-sm-1 text-secondary">
                                         {{ miner.earnings_7 | round(2) }}
                                     </div>
-                                    <div class="col-1 text-secondary">
+                                    <div class="col-sm-1 text-secondary">
                                         {{ miner.earnings_30 | round(2) }}
                                     </div>
-                                    <div class="col-1 text-secondary">
+                                    <div class="col-sm-1 text-secondary">
                                         {{ miner.online }}
                                     </div>
                                 </div>
@@ -179,39 +179,39 @@
                                 </div>
 
                             </div>
-                            <div id="posts" role="tabpanel" aria-labelledby="profile-tab"
+                            <div id="posts" role="tabpanel" aria-labelledby="posts-tab"
                                  class="tab-pane fade px-4 py-5">
-                                <p class="leade font-italic">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-                                    veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                                    consequat. Duis aute
-                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                                    deserunt mollit anim id est laborum.</p>
-                                <p class="leade font-italic mb-0">Lorem ipsum dolor sit amet, consectetur adipisicing
-                                    elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                                    commodo consequat. Duis aute
-                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                                    deserunt mollit anim id est laborum.</p>
+                                {% for post in user_posts %}
+                                <div class="row">
+                                    <div class="col-sm-8">
+                                        <h6>{{ post.title }}</h6>
+                                        {{ post.subtitle }}
+                                    </div>
+                                    <div class="col-sm-4 text-secondary">
+                                        {% set time_stamp = post.time_stamp | string() %}
+                                        {{ time_stamp[:16] }}
+                                    </div>
+                                </div>
+                                <hr>
+                                {% endfor %}
                             </div>
                             <div id="messages" role="tabpanel" aria-labelledby="contact-tab"
                                  class="tab-pane fade px-4 py-5">
-                                <p class="leade font-italic">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-                                    veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                                    consequat. Duis aute
-                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                                    deserunt mollit anim id est laborum.</p>
-                                <p class="leade font-italic mb-0">Lorem ipsum dolor sit amet, consectetur adipisicing
-                                    elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                                    commodo consequat. Duis aute
-                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                                    deserunt mollit anim id est laborum.</p>
+                                {% for msg in user_messages %}
+                                <div class="row">
+                                    <div class="col-sm-8">
+                                        <h6>{{ msg.title }}</h6>
+                                        {% set recipient = user_class.query.filter_by(id=msg.recipient).first() %}
+                                        to: {{ recipient.name }}
+                                    </div>
+                                    <div class="col-sm-4 text-secondary">
+                                        {% set time_stamp = msg.time_stamp | string() %}
+                                        {{ time_stamp[:16] }}
+                                    </div>
+                                </div>
+                                <hr>
+                                {% endfor %}
+
                             </div>
                         </div>
                         <!-- End lined tabs -->

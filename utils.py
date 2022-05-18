@@ -2,10 +2,39 @@ from datetime import datetime, timedelta
 from random import randint
 import requests as rq
 from time import sleep
-from main import db, Miner, Wallet, NewUser, Prices
+from main import db, Miner, Wallet, NewUser, Prices, Post, Comment, Message
 from dateutil import parser
 import csv
 
+new_post = Post(
+	category="Sell / Trade",
+	title="several things  for sale",
+	subtitle="ציוד היקפי",
+	body="New Senscape miner and RAK Antenna",
+	approved=True,
+	time_stamp=datetime.now(),
+	user_id=1,
+)
+db.session.add(new_post)
+
+# new_comment = Comment(
+# 	body="This is a comment",
+# 	approved=True,
+# 	time_stamp=datetime.now(),
+# 	user_id=1,
+# 	post_id=1,
+# )
+
+# new_msg = Message(
+# 	title="Hi there, what's up?",
+# 	body="How are you these days",
+# 	time_stamp=datetime.now(),
+# 	recipient=3,
+# 	read=False,
+# 	user_id=1,
+# )
+# db.session.add(new_post)
+db.session.commit()
 
 def get_miners_data():
 	headers = {

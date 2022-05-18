@@ -83,7 +83,7 @@
                     <td class="align-middle">{{ miner.city }}</td>
                     <td class="align-middle">{{ miner.earnings_7|round(4) }}</td>
                     <td class="align-middle">{{ miner.earnings_30|round(4) }}</td>
-                    {% set list1 = miner.added|string() %}
+                    {% set list1 = miner.added | string() %}
                     <td class="align-middle">{{ list1[:10] }}</td>
                     {% set wallet_address = miner.wallet_address %}
                     <td class="align-middle"><a href="{{ url_for('wallet', address=wallet_address) }}"

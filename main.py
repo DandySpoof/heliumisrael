@@ -157,8 +157,8 @@ class Message(db.Model):
 	title = db.Column(db.String(120), nullable=False)  # TODO Add input validation on front end / form
 	body = db.Column(db.Text, nullable=False) # TODO Add input validation on front end / form
 	time_stamp = db.Column(db.DateTime, nullable=False)
-	recipient = db.Column(db.Integer, nullable=False) #user id
-	read = db.Column(db.Boolean, nullable=False) #TODO Add this column to postgres on heroku
+	recipient = db.Column(db.Integer, nullable=False) #recipiant user id
+	read = db.Column(db.Boolean, nullable=False)
 
 	user_id = db.Column(db.Integer, ForeignKey("users.id"))
 	user = relationship("User", back_populates="messages")
@@ -425,9 +425,12 @@ def dashboard():
 	# print(current_user.name)
 	# return f"<p> {current_user.name} dashboard</p>"
 	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
+	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
+	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
 
 	# user_miners = Miner.query.filter_by(wallet_address=wallet.address).all()
-	return render_template("dashboard.html", user_wallets=user_wallets, miner_class=Miner)
+	return render_template("dashboard.html", user_wallets=user_wallets, user_posts=user_posts,
+	                       user_messages=user_messages, miner_class=Miner, user_class=User)
 
 
 @app.route("/contact")
