@@ -33,17 +33,17 @@ import csv
 # )
 # db.session.add(new_chat)
 
-new_msg = Message(
-	chat_id=1,
-	user_id=2,
-	title="Hi man, I'm good!",
-	body="Where have you been?",
-	time_stamp=datetime.now(),
-	recipient=1,
-	read=False,
-)
-db.session.add(new_msg)
-db.session.commit()
+# new_msg = Message(
+# 	chat_id=1,
+# 	user_id=2,
+# 	title="Hi man, I'm good!",
+# 	body="Where have you been?",
+# 	time_stamp=datetime.now(),
+# 	recipient=1,
+# 	read=False,
+# )
+# db.session.add(new_msg)
+# db.session.commit()
 
 def get_miners_data():
 	headers = {

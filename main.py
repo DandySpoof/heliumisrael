@@ -168,6 +168,7 @@ class Message(db.Model):
 	def __repr__(self):
 		return f"from: {self.id}, at {str(self.time_stamp)[:16]}"
 
+
 class Chat(db.Model):
 	__tablename__ = "chats"
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -212,7 +213,7 @@ class Activity(db.Model):
 
 
 # Line below only required once, for creating DB.
-db.create_all() #TODO DELETE messages and create meggases + chats on server
+db.create_all()
 
 
 ##Security gateway function that allows only un-verified users (verified=0) to enter the verify route
