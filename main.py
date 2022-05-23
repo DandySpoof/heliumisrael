@@ -6,7 +6,9 @@ from time import sleep
 import requests as rq
 import os
 
-from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory
+from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, session
+from flask_socketio import SocketIO, join_room, leave_room, emit, send
+from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -33,18 +35,25 @@ from twilio.rest import Client
 # ESTABLISH CONNECTION TO WORKER
 # q = Queue(connection=conn)
 
-# --- CREATE and CONFING Flask APP
+
+
+## --- CREATE and CONFING Flask APP
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
-
-# CONNECT and CONFING DB
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///helium-israel.db").replace(
 	"postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_TYPE'] = "filesystem"
+
+##ESTABLISH Database connection
 db = SQLAlchemy(app)
 
 ## CONNECTING BOOTSTRAP5 TO FLASK
 bootstrap = Bootstrap5(app)
+
+## Establish Sessions managment
+Session(app)
+socketio = SocketIO(app, manage_session=False)
 
 ## CONNECTING AND CONFIGURING GRAVATAR
 gravatar = Gravatar(app,
@@ -211,9 +220,8 @@ class Activity(db.Model):
 	user_id = db.Column(db.Integer, primary_key=True, nullable=False)
 
 
-
 # Line below only required once, for creating DB.
-db.create_all()
+# db.create_all()
 
 
 ##Security gateway function that allows only un-verified users (verified=0) to enter the verify route
@@ -228,6 +236,16 @@ def only_not_verified(func):
 
     return decorated_function
 
+#Security gateway function that allows only admin (id=1) to enter defined routs
+def admin_only(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if current_user.is_active and current_user.role == "admin":
+            return func(*args, **kwargs)
+        print("abort 403")
+        return abort(403)
+
+    return decorated_function
 
 def get_oracle_price():
 	try:
@@ -449,9 +467,16 @@ def dashboard():
 	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
 	user_chats = as_user_1 + as_user_2
 
+
 	return render_template("dashboard.html", user_wallets=user_wallets, user_posts=user_posts,
 	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
 	                       user_chats=user_chats)
+
+# @app.route("/dashboard/chat", methods=["GET", "POST"])
+# @login_required
+# def chat():
+# 	chat_it = request.args.get(cid)
+# 	return render_template("chat.html")
 
 
 @app.route("/contact")
@@ -460,5 +485,7 @@ def contact():
 
 
 
+
 if __name__ == "__main__":
-	app.run(debug=False)
+	socketio.run(app, debug=True)
+	# app.run(debug=False)
