@@ -23,7 +23,7 @@
 
     {% block content %}
 
-    <div class="container-fluid">
+    <div id="jump-here" class="container-fluid">
         <div class="main-body">
             <div class="row gutters-sm">
                 <div class="col-md-2 mb-1">
@@ -115,17 +115,20 @@
                         <!-- Lined tabs-->
                         <ul id="myTab2" role="tablist"
                             class="nav nav-tabs nav-pills with-arrow lined flex-column flex-sm-row text-center">
+
                             <li class="nav-item flex-sm-fill">
                                 <a id="miners-tab" data-toggle="tab" href="#miners" role="tab" aria-controls="miners"
                                    aria-selected="true"
                                    class="nav-link text-uppercase font-weight-bold mr-sm-3 rounded-0 active">My
                                     Miners</a>
                             </li>
+
                             <li class="nav-item flex-sm-fill">
                                 <a id="posts-tab" data-toggle="tab" href="#posts" role="tab"
                                    aria-controls="posts" aria-selected="false"
                                    class="nav-link text-uppercase font-weight-bold mr-sm-3 rounded-0">My Posts</a>
                             </li>
+
                             <li class="nav-item flex-sm-fill">
                                 <a id="messages-tab" data-toggle="tab" href="#messages" role="tab"
                                    aria-controls="messages" aria-selected="false"
@@ -134,6 +137,8 @@
                         </ul>
 
                         <div id="myTab2Content" class="tab-content">
+
+                          <!-- Miners Tab -->
                             <div id="miners" role="tabpanel" aria-labelledby="miners-tab"
                                  class="tab-pane fade px-4 py-5 show active">
                                 {% for wallet in user_wallets %}
@@ -180,6 +185,8 @@
                                 </div>
 
                             </div>
+
+                            <!-- Posts Tab -->
                             <div id="posts" role="tabpanel" aria-labelledby="posts-tab"
                                  class="tab-pane fade px-4 py-5">
                                 {% for post in user_posts %}
@@ -197,6 +204,7 @@
                                 {% endfor %}
                             </div>
 
+                            <!-- Messages Tab -->
                             <div id="messages" role="tabpanel" aria-labelledby="messages-tab"
                                  class="tab-pane fade px-4 py-5">
 
@@ -207,6 +215,7 @@
                                                 <!--Chats section-->
                                                 <div class="col-12 col-lg-5 col-xl-3 border-right">
 
+                                                    <!--search box-->
                                                     <div class="px-4 d-none d-md-block">
                                                         <div class="d-flex align-items-center">
                                                             <div class="flex-grow-1">
@@ -216,117 +225,29 @@
                                                         </div>
                                                     </div>
 
-                                                    <a href="?78548952" class="list-group-item list-group-item-action border-0">
-                                                        <div class="badge bg-success float-right">5</div>
+                                                    {% for chat in user_chats %}
+                                                    <a href="?c_id={{ chat['chat_object'].id }}" class="list-group-item list-group-item-action border-0">
+                                                        <div class="badge bg-success float-right">{{ chat['unread_messages'] }}</div>
                                                         <div class="d-flex align-items-start">
                                                             <img src="https://bootdey.com/img/Content/avatar/avatar5.png"
                                                                  class="rounded-circle mr-1" alt="Vanessa Tucker"
                                                                  width="40" height="40">
                                                             <div class="flex-grow-1 ml-3">
-                                                                Vanessa Tucker
+                                                                {% if current_user.get_id() | int() != chat['chat_object'].user_1 | int() %}
+                                                                {% set recipient = user_class.query.filter_by(id=chat['chat_object'].user_1).first()  %}
+                                                                {{ recipient.name }}
+                                                                {% else %}
+                                                                {% set recipient = user_class.query.filter_by(id=chat['chat_object'].user_2).first()  %}
+                                                                {{ recipient.name }}
+                                                                {% endif %}
                                                                 <div class="small"><span
                                                                         class="fas fa-circle chat-online"></span> Online
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </a>
-                                                    <a href="#" class="list-group-item list-group-item-action border-0">
-                                                        <div class="badge bg-success float-right">2</div>
-                                                        <div class="d-flex align-items-start">
-                                                            <img src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                                                                 class="rounded-circle mr-1" alt="William Harris"
-                                                                 width="40" height="40">
-                                                            <div class="flex-grow-1 ml-3">
-                                                                William Harris
-                                                                <div class="small"><span
-                                                                        class="fas fa-circle chat-online"></span> Online
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action border-0">
-                                                        <div class="d-flex align-items-start">
-                                                            <img src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                                                                 class="rounded-circle mr-1" alt="Sharon Lessman"
-                                                                 width="40" height="40">
-                                                            <div class="flex-grow-1 ml-3">
-                                                                Sharon Lessman
-                                                                <div class="small"><span
-                                                                        class="fas fa-circle chat-online"></span> Online
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action border-0">
-                                                        <div class="d-flex align-items-start">
-                                                            <img src="https://bootdey.com/img/Content/avatar/avatar4.png"
-                                                                 class="rounded-circle mr-1" alt="Christina Mason"
-                                                                 width="40" height="40">
-                                                            <div class="flex-grow-1 ml-3">
-                                                                Christina Mason
-                                                                <div class="small"><span
-                                                                        class="fas fa-circle chat-offline"></span>
-                                                                    Offline
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action border-0">
-                                                        <div class="d-flex align-items-start">
-                                                            <img src="https://bootdey.com/img/Content/avatar/avatar5.png"
-                                                                 class="rounded-circle mr-1" alt="Fiona Green"
-                                                                 width="40" height="40">
-                                                            <div class="flex-grow-1 ml-3">
-                                                                Fiona Green
-                                                                <div class="small"><span
-                                                                        class="fas fa-circle chat-offline"></span>
-                                                                    Offline
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action border-0">
-                                                        <div class="d-flex align-items-start">
-                                                            <img src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                                                                 class="rounded-circle mr-1" alt="Doris Wilder"
-                                                                 width="40" height="40">
-                                                            <div class="flex-grow-1 ml-3">
-                                                                Doris Wilder
-                                                                <div class="small"><span
-                                                                        class="fas fa-circle chat-offline"></span>
-                                                                    Offline
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action border-0">
-                                                        <div class="d-flex align-items-start">
-                                                            <img src="https://bootdey.com/img/Content/avatar/avatar4.png"
-                                                                 class="rounded-circle mr-1" alt="Haley Kennedy"
-                                                                 width="40" height="40">
-                                                            <div class="flex-grow-1 ml-3">
-                                                                Haley Kennedy
-                                                                <div class="small"><span
-                                                                        class="fas fa-circle chat-offline"></span>
-                                                                    Offline
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                                    <a href="#" class="list-group-item list-group-item-action border-0">
-                                                        <div class="d-flex align-items-start">
-                                                            <img src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                                                                 class="rounded-circle mr-1" alt="Jennifer Chang"
-                                                                 width="40" height="40">
-                                                            <div class="flex-grow-1 ml-3">
-                                                                Jennifer Chang
-                                                                <div class="small"><span
-                                                                        class="fas fa-circle chat-offline"></span>
-                                                                    Offline
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
+                                                    {% endfor %}
+
 
                                                     <hr class="d-block d-lg-none mt-1 mb-0">
                                                 </div>
@@ -539,6 +460,26 @@
             crossorigin="anonymous"></script>
 
 <script type="text/javascript">
+  let url = window.location.href
+
+  if (url.indexOf("?") > -1 === true) {
+  console.log(url.indexOf("?") > -1)
+
+  $("#miners-tab").attr("aria-selected", "false");
+  $("#miners-tab").removeClass("active");
+  $("#miners").removeClass("show active");
+
+  $("#posts-tab").attr("aria-selected", "false");
+  $("#posts-tab").removeClass("active");
+  $("#posts").removeClass("show active");
+
+  $("#messages-tab").attr("aria-selected", "true");
+  $("#messages-tab").addClass("active");
+  $("#messages").addClass("show active");
+
+  window.location.hash = "jump-here";
+  }
+
 
   var socket = io.connect('http://' + document.domain + ':' + location.port);
 

@@ -25,20 +25,20 @@ import csv
 # 	post_id=1,
 # )
 
-new_chat = Chat(
-	time_stamp=datetime.now(),
-	user_1=3,
-	user_2=3,
-	hide=False,
-)
-db.session.add(new_chat)
-db.session.commit()
+# new_chat = Chat(
+# 	time_stamp=datetime.now(),
+# 	user_1=2,
+# 	user_2=1,
+# 	hide=False,
+# )
+# db.session.add(new_chat)
+# db.session.commit()
 
 # new_msg = Message(
-# 	chat_id=1,
-# 	user_id=1,
+# 	chat_id=5,
+# 	user_id=2,
 # 	title="Hi man, I'm good!",
-# 	body="new message in chat id 1",
+# 	body="very new id 5",
 # 	time_stamp=datetime.now(),
 # 	recipient=2,
 # 	read=False,

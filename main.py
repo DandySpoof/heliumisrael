@@ -13,7 +13,7 @@ import eventlet
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, or_
+from sqlalchemy import ForeignKey, or_, and_
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user, login_fresh
 from flask_bootstrap import Bootstrap5
 # from flask_wtf import FlaskForm
@@ -186,6 +186,7 @@ class Chat(db.Model):
 	user_1 = db.Column(db.Integer, nullable=False)
 	user_2 = db.Column(db.Integer, nullable=False)
 	hide = db.Column(db.Boolean, nullable=False)
+	l_time_stamp = db.Column(db.DateTime, nullable=False)
 
 	messages = relationship("Message", back_populates="chat")
 
@@ -459,35 +460,76 @@ def price_chart():
 @app.route("/dashboard")
 @login_required
 def dashboard():
+
+	c_id = request.args.get("c_id")
+	print(f"c_id - {c_id}")
 	# print(current_user.name)
-	# return f"<p> {current_user.name} dashboard</p>"
 	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
 	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
 	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
 	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
 	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
 	user_chats = as_user_1 + as_user_2
+	# print(current_user.get_id())
+
+	chat_list = []
+	for chat in user_chats:
+		# print(chat)
+		if len(chat_list) == 0 :
+			msgs = Message.query.filter_by(chat_id=chat.id).all()
+			unread_msgs = 0
+			for msg in msgs:
+				if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
+					unread_msgs += 1
+
+			chat_list.append({"chat_object": chat, "unread_messages": unread_msgs})
+
+		elif chat.l_time_stamp > chat_list[0]["chat_object"].l_time_stamp:
+			msgs = Message.query.filter_by(chat_id=chat.id).all()
+			unread_msgs = 0
+			for msg in msgs:
+				if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
+					unread_msgs += 1
+
+			# chat_list.append({"chat_object": chat, "unread_messages": unread_msgs})
+			chat_list.insert(0,{"chat_object": chat, "unread_messages": unread_msgs})
+
+		else:
+			msgs = Message.query.filter_by(chat_id=chat.id).all()
+			unread_msgs = 0
+			for msg in msgs:
+				if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
+					unread_msgs += 1
+
+			# chat_list.insert(1, chat)
+			chat_list.insert(1,{"chat_object": chat, "unread_messages": unread_msgs})
+
+
+	print(chat_list)
+
+	# print(user_chats)
+
 	chat = 1
 
 	return render_template("dashboard.html", user_wallets=user_wallets, user_posts=user_posts,
 	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
-	                       user_chats=user_chats, chat=chat)
+	                       user_chats=chat_list, chat=c_id)
 
 
-@app.route("/dashboard/<chat_id>", methods=["GET", "POST"])
-@login_required
-def messages(chat_id):
-	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
-	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
-	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
-	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
-	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
-	user_chats = as_user_1 + as_user_2
-	chat = 1
-
-	return render_template("chat.html", user_wallets=user_wallets, user_posts=user_posts,
-	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
-	                       user_chats=user_chats, chat=chat)
+# @app.route("/dashboard/<chat_id>", methods=["GET", "POST"])
+# @login_required
+# def messages(chat_id):
+# 	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
+# 	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
+# 	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
+# 	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
+# 	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
+# 	user_chats = as_user_1 + as_user_2
+# 	chat = 1
+#
+# 	return render_template("chat.html", user_wallets=user_wallets, user_posts=user_posts,
+# 	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
+# 	                       user_chats=user_chats, chat=chat)
 
 
 @app.route("/contact")
