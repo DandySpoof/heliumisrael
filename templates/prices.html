@@ -22,14 +22,14 @@
 
 
     {% block content %}
-
+<!--TODO: keep in mind changes to canvasJS and yahoo's date column-->
     <script type="text/javascript">
     window.onload = function () {
     var chart = new CanvasJS.Chart("chartContainer",
     {
       backgroundColor: "#e6fff9",
       title:{
-      text: "Today's avarage price {{ daily_avarage }}  |  Current - {{ oracle_price }} HNT/$"
+      text: "Daily Chart | today's avarage price {{ daily_avarage }} | Current - {{ oracle_price }} HNT/$"
       },
       exportEnabled: false,
       zoomEnabled: true,

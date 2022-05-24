@@ -445,3 +445,7 @@ import csv
 #         )
 #         db.session.add(new_price_entry)
 #     db.session.commit()
+
+a= datetime.now()
+
+print(a)

@@ -25,21 +25,22 @@ import csv
 # 	post_id=1,
 # )
 
-# new_chat = Chat(
-# 	time_stamp=datetime.now(),
-# 	user_1=1,
-# 	user_2=2,
-# 	hide=False,
-# )
-# db.session.add(new_chat)
+new_chat = Chat(
+	time_stamp=datetime.now(),
+	user_1=3,
+	user_2=3,
+	hide=False,
+)
+db.session.add(new_chat)
+db.session.commit()
 
 # new_msg = Message(
 # 	chat_id=1,
-# 	user_id=2,
+# 	user_id=1,
 # 	title="Hi man, I'm good!",
-# 	body="Where have you been?",
+# 	body="new message in chat id 1",
 # 	time_stamp=datetime.now(),
-# 	recipient=1,
+# 	recipient=2,
 # 	read=False,
 # )
 # db.session.add(new_msg)
@@ -288,7 +289,6 @@ def commit_prices_to_db():
 	        )
 	        db.session.add(new_price_entry)
 	    db.session.commit()
-
 
 def update_daily_price():
 	"""

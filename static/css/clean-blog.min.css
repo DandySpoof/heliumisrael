@@ -744,7 +744,7 @@ footer .copyright {
     display: flex;
     flex-direction: column;
     max-height: 460px;
-    overflow-y: scroll
+    overflow-y: auto;
 }
 
 .chat-message-left,

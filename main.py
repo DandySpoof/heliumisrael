@@ -9,6 +9,7 @@ import os
 from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, session
 from flask_socketio import SocketIO, join_room, leave_room, emit, send
 from flask_session import Session
+import eventlet
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -466,23 +467,42 @@ def dashboard():
 	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
 	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
 	user_chats = as_user_1 + as_user_2
-
+	chat = 1
 
 	return render_template("dashboard.html", user_wallets=user_wallets, user_posts=user_posts,
 	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
-	                       user_chats=user_chats)
+	                       user_chats=user_chats, chat=chat)
 
-# @app.route("/dashboard/chat", methods=["GET", "POST"])
-# @login_required
-# def chat():
-# 	chat_it = request.args.get(cid)
-# 	return render_template("chat.html")
+
+@app.route("/dashboard/<chat_id>", methods=["GET", "POST"])
+@login_required
+def messages(chat_id):
+	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
+	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
+	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
+	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
+	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
+	user_chats = as_user_1 + as_user_2
+	chat = 1
+
+	return render_template("chat.html", user_wallets=user_wallets, user_posts=user_posts,
+	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
+	                       user_chats=user_chats, chat=chat)
 
 
 @app.route("/contact")
 def contact():
 	return "<p> contact page</p>"
 
+
+
+def messageReceived(methods=['GET', 'POST']):
+    print('message was received!!!')
+
+@socketio.on('my event')
+def handle_my_custom_event(json, methods=['GET', 'POST']):
+    print('received my event: ' + str(json))
+    socketio.emit('my response', json, callback=messageReceived)
 
 
 
