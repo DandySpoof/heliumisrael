@@ -493,9 +493,10 @@
   console.log(c_id)
 
   $("[href='?c_id="+ c_id +"']").addClass("active");
-}
 
-  var socket = io.connect('/', {transports: ['websocket']} )
+
+  var socket = io();
+  io.connect('/', {transports: ['websocket']} )
 
   socket.on( 'connect', function() {
     socket.emit( 'my event', {
@@ -523,7 +524,7 @@
     } )
 
   } )
-
+}
 
 
   socket.on( 'my response', function( msg ) {
