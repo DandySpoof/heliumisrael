@@ -11,7 +11,7 @@ from flask import Flask, render_template, request, url_for, redirect, flash, sen
 from flask_socketio import SocketIO, join_room, leave_room, emit, send
 from flask_session import Session
 import eventlet
-eventlet.monkey_patch()
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -77,6 +77,7 @@ login_manager.login_message = u"To view this page, you must login first"
 def load_user(user_id):
 	return User.query.get(int(user_id))
 
+# eventlet.monkey_patch()
 
 ## Construct data base tables
 
