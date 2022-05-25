@@ -496,7 +496,7 @@
 
 
   var socket = io();
-  io.connect('/', {transports: ['websocket']} )
+  // io.connect('/', {transports: ['websocket']} )
 
   socket.on( 'connect', function() {
     socket.emit( 'my event', {
