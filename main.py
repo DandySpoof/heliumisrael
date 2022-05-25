@@ -6,6 +6,7 @@ from time import sleep
 import requests as rq
 import os
 
+
 from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, session
 from flask_socketio import SocketIO, join_room, leave_room, emit, send
 from flask_session import Session
@@ -545,8 +546,10 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
 		recipient=recipient.id,
 		read=False
 		)
-		print("I'm about to commit to db")
 		db.session.add(new_msg)
+
+		chat.l_time_stamp = time_stamp
+
 		db.session.commit()
 	except:
 		print('Dashboard entry event: ' + str(json))
@@ -554,7 +557,6 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
 
 
 	socketio.emit('my response', json, callback=messageReceived)
-
 
 
 if __name__ == "__main__":
