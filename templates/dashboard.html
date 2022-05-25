@@ -496,7 +496,7 @@
 
 
   var socket = io();
-  // io.connect('/', {transports: ['websocket']} )
+  io.connect('/', {transports: ['websocket']} )
 
   socket.on( 'connect', function() {
     socket.emit( 'my event', {
@@ -514,6 +514,7 @@
     var form = $( '#msg-send' ).on( 'click', function( e ) {
       let user_id = {{ current_user.get_id() }}
       let user_input = $( '#msg-text' ).val()
+      console.log(user_input)
       socket.emit( 'my event', {
         user_id : user_id,
         message : user_input,
