@@ -11,6 +11,7 @@ from flask import Flask, render_template, request, url_for, redirect, flash, sen
 from flask_socketio import SocketIO, join_room, leave_room, emit, send
 from flask_session import Session
 import eventlet
+eventlet.monkey_patch()
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -20,7 +21,6 @@ from flask_bootstrap import Bootstrap5
 # from flask_wtf import FlaskForm
 # from wtforms import StringField, SubmitField
 # from wtforms.validators import DataRequired, URL
-
 # from rq import Queue
 # from worker import conn
 # import utils
@@ -32,7 +32,6 @@ from flask_gravatar import Gravatar
 import psycopg2
 import gunicorn
 from twilio.rest import Client
-
 
 # ESTABLISH CONNECTION TO WORKER
 # q = Queue(connection=conn)
@@ -54,7 +53,7 @@ bootstrap = Bootstrap5(app)
 
 ## Establish Sessions managment
 Session(app)
-socketio = SocketIO(app, manage_session=False, logger=True, engineio_logger=True)
+socketio = SocketIO(app, manage_session=False, logger=True, engineio_logger=True, cors_allowed_origins="*")
 
 ## CONNECTING AND CONFIGURING GRAVATAR
 gravatar = Gravatar(app,
