@@ -1,3 +1,3 @@
-web: gunicorn eventlet  main:app
+web: gunicorn  main:app
 worker: python worker.py
 clock: python clock.py
