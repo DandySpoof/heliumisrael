@@ -471,7 +471,7 @@
 <script type="text/javascript">
   let url = window.location.href
 
-<!--    ------------------------------    -->
+  // <!---------------------------------->
 
   if (url.indexOf("?") > -1 === true) {
   // console.log(url.indexOf("?") > -1)
@@ -500,12 +500,12 @@
   var socket = io.connect('/', {transports: ['websocket']} )
   // ('http://' + document.domain + ':' + location.port);
 
-  // Catch connection event to a specific chat
+  // Catch connection event to a specific chat and emit
   socket.on( 'connect', function() {
     socket.emit( 'my event', {
       user_id: {{ current_user.get_id() }},
       on_chat: c_id
-    } )
+    } );
 
     // Chatch Enter Key prees and click the send button
     $('#msg-text').keypress(function (event) {
@@ -523,17 +523,17 @@
         user_id : user_id,
         message : user_input,
         chat_id : c_id,
-      } )
+      } );
 
       $( '#msg-text' ).val( '' ).focus()
     } )
 
   } )
 }
-<!--    ------------------------------    -->
+// <!--    ------------------------------    -->
 
 
-<!--    ------------------------------    -->
+// <!--    ------------------------------    -->
 
   socket.on( 'my response', function( msg ) {
     console.log( msg )
@@ -573,7 +573,7 @@
         }
     })
 
-    <!--    ------------------------------    -->
+       ------------------------------
 
 </script>
     <!-- TODO need to handle chat box scroll down after message sent/recevied -->
