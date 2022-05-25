@@ -471,10 +471,8 @@
 <script type="text/javascript">
   let url = window.location.href
 
-  // <!---------------------------------->
 
   if (url.indexOf("?") > -1 === true) {
-  // console.log(url.indexOf("?") > -1)
 
   $("#miners-tab").attr("aria-selected", "false");
   $("#miners-tab").removeClass("active");
@@ -498,16 +496,13 @@
 
 
   var socket = io.connect('/', {transports: ['websocket']} )
-  // ('http://' + document.domain + ':' + location.port);
 
-  // Catch connection event to a specific chat and emit
   socket.on( 'connect', function() {
     socket.emit( 'my event', {
       user_id: {{ current_user.get_id() }},
       on_chat: c_id
     } );
 
-    // Chatch Enter Key prees and click the send button
     $('#msg-text').keypress(function (event) {
     if (event.which == 13) {
     $('#msg-send').click();
@@ -515,7 +510,6 @@
       }
     })
 
-    // Chatch Click on send message button and initiate emit function to Flask
     var form = $( '#msg-send' ).on( 'click', function( e ) {
       let user_id = {{ current_user.get_id() }}
       let user_input = $( '#msg-text' ).val()
@@ -530,10 +524,7 @@
 
   } )
 }
-// <!--    ------------------------------    -->
 
-
-// <!--    ------------------------------    -->
 
   socket.on( 'my response', function( msg ) {
     console.log( msg )
@@ -573,7 +564,6 @@
         }
     })
 
-       ------------------------------
 
 </script>
     <!-- TODO need to handle chat box scroll down after message sent/recevied -->
