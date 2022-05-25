@@ -495,7 +495,7 @@
   $("[href='?c_id="+ c_id +"']").addClass("active");
 
 
-  var socket = io(connect('/', {transports: ['websocket']} ));
+  var socket = io.connect('/', {transports: ['websocket']} );
   console.log(socket)
 
   socket.on( 'connect', function() {
