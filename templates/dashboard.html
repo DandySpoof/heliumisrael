@@ -23,7 +23,7 @@
 
     {% block content %}
 
-    <div id="jump-here" class="container-fluid">
+    <div class="container-fluid">
         <div class="main-body">
             <div class="row gutters-sm">
                 <div class="col-md-2 mb-1">
@@ -111,7 +111,7 @@
                 </div>
 
                 <div class="col-md-10">
-                    <div class="p-5 bg-white rounded shadow mb-5">
+                    <div id="jump-here" class="p-5 bg-white rounded shadow mb-5">
                         <!-- Lined tabs-->
                         <ul id="myTab2" role="tablist"
                             class="nav nav-tabs nav-pills with-arrow lined flex-column flex-sm-row text-center">
@@ -493,7 +493,7 @@
   console.log(c_id)
 
   $("[href='?c_id="+ c_id +"']").addClass("active");
-
+}
 
   var socket = io.connect('/', {transports: ['websocket']} )
 
@@ -523,7 +523,7 @@
     } )
 
   } )
-}
+
 
 
   socket.on( 'my response', function( msg ) {
