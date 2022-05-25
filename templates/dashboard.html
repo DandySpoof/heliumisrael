@@ -471,6 +471,7 @@
 <script type="text/javascript">
   let url = window.location.href
 
+<!--    ------------------------------    -->
 
   if (url.indexOf("?") > -1 === true) {
   // console.log(url.indexOf("?") > -1)
@@ -488,7 +489,6 @@
   $("#messages").addClass("show active");
 
   window.location.hash = "jump-here";
-  }
 
   var urlParams = new URLSearchParams(window.location.search)
   var c_id = urlParams.get('c_id')
@@ -496,15 +496,26 @@
 
   $("[href='?c_id="+ c_id +"']").addClass("active");
 
+
   var socket = io.connect('/', {transports: ['websocket']} )
   // ('http://' + document.domain + ':' + location.port);
 
-
-
+  // Catch connection event to a specific chat
   socket.on( 'connect', function() {
     socket.emit( 'my event', {
-      user_id: {{ current_user.get_id() }}
+      user_id: {{ current_user.get_id() }},
+      on_chat: c_id
     } )
+
+    // Chatch Enter Key prees and click the send button
+    $('#msg-text').keypress(function (event) {
+    if (event.which == 13) {
+    $('#msg-send').click();
+    return false;
+      }
+    })
+
+    // Chatch Click on send message button and initiate emit function to Flask
     var form = $( '#msg-send' ).on( 'click', function( e ) {
       let user_id = {{ current_user.get_id() }}
       let user_input = $( '#msg-text' ).val()
@@ -513,9 +524,16 @@
         message : user_input,
         chat_id : c_id,
       } )
+
       $( '#msg-text' ).val( '' ).focus()
     } )
+
   } )
+}
+<!--    ------------------------------    -->
+
+
+<!--    ------------------------------    -->
 
   socket.on( 'my response', function( msg ) {
     console.log( msg )
@@ -554,6 +572,8 @@
 
         }
     })
+
+    <!--    ------------------------------    -->
 
 </script>
     <!-- TODO need to handle chat box scroll down after message sent/recevied -->

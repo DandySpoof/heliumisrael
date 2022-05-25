@@ -38,7 +38,6 @@ from twilio.rest import Client
 # q = Queue(connection=conn)
 
 
-
 ## --- CREATE and CONFING Flask APP
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
@@ -55,7 +54,7 @@ bootstrap = Bootstrap5(app)
 
 ## Establish Sessions managment
 Session(app)
-socketio = SocketIO(app, manage_session=False)
+socketio = SocketIO(app, manage_session=False, logger=True, engineio_logger=True)
 
 ## CONNECTING AND CONFIGURING GRAVATAR
 gravatar = Gravatar(app,
@@ -73,7 +72,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 login_manager.login_message = u"To view this page, you must login first"
-
 
 
 @login_manager.user_loader
