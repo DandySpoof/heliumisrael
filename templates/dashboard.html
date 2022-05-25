@@ -33,7 +33,7 @@
                                 <img id="gravatar" src="{{ current_user.email | gravatar }}" alt="Admin"
                                      width="150">
                                 <div class="mt-3">
-                                    <h4>John Doe</h4>
+                                    <h4>{{ current_user.name }}</h4>
                                     <p class="text-secondary mb-1">Full Stack Developer</p>
                                     <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
                                     <button class="btn btn-primary">Follow</button>
@@ -227,17 +227,26 @@
 
                                                     {% for chat in user_chats %}
                                                     <a href="?c_id={{ chat['chat_object'].id }}" class="list-group-item list-group-item-action border-0">
+                                                        {% if chat['unread_messages'] | int() > 0 %}
                                                         <div class="badge bg-success float-right">{{ chat['unread_messages'] }}</div>
+                                                        {% endif %}
+
                                                         <div class="d-flex align-items-start">
-                                                            <img src="https://bootdey.com/img/Content/avatar/avatar5.png"
-                                                                 class="rounded-circle mr-1" alt="Vanessa Tucker"
-                                                                 width="40" height="40">
-                                                            <div class="flex-grow-1 ml-3">
-                                                                {% if current_user.get_id() | int() != chat['chat_object'].user_1 | int() %}
-                                                                {% set recipient = user_class.query.filter_by(id=chat['chat_object'].user_1).first()  %}
-                                                                {{ recipient.name }}
-                                                                {% else %}
-                                                                {% set recipient = user_class.query.filter_by(id=chat['chat_object'].user_2).first()  %}
+                                                        {% if current_user.get_id() | int() != chat['chat_object'].user_1 | int() %}
+                                                        {% set recipient = user_class.query.filter_by(id=chat['chat_object'].user_1).first()  %}
+                                                              <img id="gravatar"
+                                                                   src="{{ recipient.email | gravatar }}"
+                                                                   alt="{{ recipient.name }}"
+                                                                   width="40" height="40">
+                                                                <div class="flex-grow-1 ml-3">
+                                                                    {{ recipient.name }}
+                                                        {% else %}
+                                                        {% set recipient = user_class.query.filter_by(id=chat['chat_object'].user_2).first()  %}
+                                                                <img id="gravatar"
+                                                                     src="{{ recipient.email | gravatar }}"
+                                                                     alt="{{ recipient.name }}"
+                                                                     width="40" height="40">
+                                                                  <div class="flex-grow-1 ml-3">
                                                                 {{ recipient.name }}
                                                                 {% endif %}
                                                                 <div class="small"><span
@@ -462,8 +471,9 @@
 <script type="text/javascript">
   let url = window.location.href
 
+
   if (url.indexOf("?") > -1 === true) {
-  console.log(url.indexOf("?") > -1)
+  // console.log(url.indexOf("?") > -1)
 
   $("#miners-tab").attr("aria-selected", "false");
   $("#miners-tab").removeClass("active");
@@ -480,12 +490,19 @@
   window.location.hash = "jump-here";
   }
 
+  var urlParams = new URLSearchParams(window.location.search)
+  var c_id = urlParams.get('c_id')
+  console.log(c_id)
+
+  $("[href='?c_id="+ c_id +"']").addClass("active");
 
   var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+
+
   socket.on( 'connect', function() {
     socket.emit( 'my event', {
-      data: 'User Connected'
+      user_id: {{ current_user.get_id() }}
     } )
     var form = $( '#msg-send' ).on( 'click', function( e ) {
       let user_id = {{ current_user.get_id() }}
@@ -493,13 +510,14 @@
       socket.emit( 'my event', {
         user_id : user_id,
         message : user_input,
+        chat_id : c_id,
       } )
       $( '#msg-text' ).val( '' ).focus()
     } )
   } )
 
   socket.on( 'my response', function( msg ) {
-    console.log( msg.user_id )
+    console.log( msg )
     if( typeof msg.message !== 'undefined' && msg.message.length > 0 ) {
     var time = new Date()
     var hour = ('0'+time.getHours()).slice(-2)
@@ -509,10 +527,13 @@
         var direction1 = '<div class="chat-message-right pb-4">'
         var gravatar = '<img id="gravatar" src="{{ current_user.email | gravatar }}" alt="{{ current_user.name }}" width="40" height="40">'
         var direction2 = '<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">'
+        var sender = 'You'
       } else {
         var direction1 = '<div class="chat-message-left pb-4">'
-        var gravatar = '<img id="gravatar" src="{{ current_user.email | gravatar }}" alt="{{ current_user.name }}" width="40" height="40">'
+        var gravatar = '<img id="gravatar" src="'+msg.sender_mail+'" alt='+msg.sender_name+' width="40" height="40">'
         var direction2 = '<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">'
+        var sender = msg.sender_name
+
       }
 
 
@@ -524,7 +545,7 @@
         `</div>
         </div>
         `+ direction2 +`
-          <div class="font-weight-bold mb-1">You</div>`
+          <div class="font-weight-bold mb-1">`+ sender +`</div>`
             + msg.message +
         `</div>
       </div>`

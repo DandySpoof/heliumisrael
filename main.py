@@ -166,8 +166,7 @@ class Message(db.Model):
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
 	chat_id = db.Column(db.Integer, ForeignKey("chats.id"))
 	user_id = db.Column(db.Integer, ForeignKey("users.id"))
-	title = db.Column(db.String(120), nullable=False)  # TODO Add input validation on front end / form
-	body = db.Column(db.Text, nullable=False) # TODO Add input validation on front end / form
+	body = db.Column(db.Text, nullable=False)
 	time_stamp = db.Column(db.DateTime, nullable=False)
 	recipient = db.Column(db.Integer, nullable=False) #recipiant user id
 	read = db.Column(db.Boolean, nullable=False)
@@ -176,7 +175,7 @@ class Message(db.Model):
 	user = relationship("User", back_populates="messages")
 
 	def __repr__(self):
-		return f"from: {self.id}, at {str(self.time_stamp)[:16]}"
+		return f"(from user id: {self.user_id}, at: {str(self.time_stamp)[:16]}, chat id: {self.chat_id})"
 
 
 class Chat(db.Model):
@@ -461,9 +460,21 @@ def price_chart():
 @login_required
 def dashboard():
 
-	c_id = request.args.get("c_id")
-	print(f"c_id - {c_id}")
+	try:
+		c_id = request.args.get("c_id")
+		msgs =  Message.query.filter_by(chat_id=int(c_id)).all()
+		unread_msgs = [msg for msg in msgs if msg.read == False and int(current_user.get_id()) != int(msg.user_id)]
+		for msg in unread_msgs:
+			msg.read = True
+		db.session.commit()
+
+		print(f"c_id - {c_id}")
+		print(unread_msgs)
+	except:
+		pass
+
 	# print(current_user.name)
+
 	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
 	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
 	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
@@ -475,35 +486,20 @@ def dashboard():
 	chat_list = []
 	for chat in user_chats:
 		# print(chat)
-		if len(chat_list) == 0 :
-			msgs = Message.query.filter_by(chat_id=chat.id).all()
-			unread_msgs = 0
-			for msg in msgs:
-				if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
-					unread_msgs += 1
+		msgs = Message.query.filter_by(chat_id=chat.id).all()
+		unread_msgs = 0
+		for msg in msgs:
+			if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
+				unread_msgs += 1
 
+		if len(chat_list) == 0 :
 			chat_list.append({"chat_object": chat, "unread_messages": unread_msgs})
 
-		elif chat.l_time_stamp > chat_list[0]["chat_object"].l_time_stamp:
-			msgs = Message.query.filter_by(chat_id=chat.id).all()
-			unread_msgs = 0
-			for msg in msgs:
-				if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
-					unread_msgs += 1
-
-			# chat_list.append({"chat_object": chat, "unread_messages": unread_msgs})
+		elif chat.l_time_stamp > chat_list[0]["chat_object"].l_time_stamp or unread_msgs > 0:
 			chat_list.insert(0,{"chat_object": chat, "unread_messages": unread_msgs})
 
 		else:
-			msgs = Message.query.filter_by(chat_id=chat.id).all()
-			unread_msgs = 0
-			for msg in msgs:
-				if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
-					unread_msgs += 1
-
-			# chat_list.insert(1, chat)
 			chat_list.insert(1,{"chat_object": chat, "unread_messages": unread_msgs})
-
 
 	print(chat_list)
 
@@ -513,38 +509,51 @@ def dashboard():
 
 	return render_template("dashboard.html", user_wallets=user_wallets, user_posts=user_posts,
 	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
-	                       user_chats=chat_list, chat=c_id)
-
-
-# @app.route("/dashboard/<chat_id>", methods=["GET", "POST"])
-# @login_required
-# def messages(chat_id):
-# 	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
-# 	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
-# 	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
-# 	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
-# 	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
-# 	user_chats = as_user_1 + as_user_2
-# 	chat = 1
-#
-# 	return render_template("chat.html", user_wallets=user_wallets, user_posts=user_posts,
-# 	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
-# 	                       user_chats=user_chats, chat=chat)
-
+	                       user_chats=chat_list, chat=c_id, chat_class=Chat)
 
 @app.route("/contact")
 def contact():
 	return "<p> contact page</p>"
 
 
-
 def messageReceived(methods=['GET', 'POST']):
-    print('message was received!!!')
+	print("Sucsess")
+	return "console.log('message was received!!!')"
 
 @socketio.on('my event')
 def handle_my_custom_event(json, methods=['GET', 'POST']):
-    print('received my event: ' + str(json))
-    socketio.emit('my response', json, callback=messageReceived)
+	try:
+		print(f'new message event on chat id - {int(json["chat_id"])}' )
+		chat = Chat.query.filter_by(id=int(json["chat_id"])).first()
+
+		if int(current_user.get_id()) != int(chat.user_1):
+			recipient = User.query.filter_by(id=chat.user_1).first()
+		else:
+			recipient = User.query.filter_by(id=chat.user_2).first()
+
+		json["sender_name"] = recipient.name
+		json["sender_mail"] = gravatar(recipient.email)
+
+		print(json["sender_mail"])
+		time_stamp = datetime.now()
+
+		new_msg = Message(
+		chat_id=int(json["chat_id"]),
+		user_id=json["user_id"],
+		body=json["message"],
+		time_stamp=time_stamp,
+		recipient=recipient.id,
+		read=False
+		)
+		print("I'm about to commit to db")
+		db.session.add(new_msg)
+		db.session.commit()
+	except:
+		print('Dashboard entry event: ' + str(json))
+		pass
+
+
+	socketio.emit('my response', json, callback=messageReceived)
 
 
 

@@ -58,7 +58,6 @@ class CommentForm(FlaskForm):
 
 
 class MessageForm(FlaskForm):
-	title = StringField("Title", validators=[DataRequired("Please enter title")])
 	body = CKEditorField("Message Content", validators=[DataRequired("Please write somthing")])
 	submit = SubmitField("Send")
 
