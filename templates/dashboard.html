@@ -486,7 +486,7 @@
   $("#messages-tab").addClass("active");
   $("#messages").addClass("show active");
 
-  window.location.hash = "jump-here";
+  // window.location.hash = "jump-here";
 
   var urlParams = new URLSearchParams(window.location.search)
   var c_id = urlParams.get('c_id')
@@ -495,7 +495,9 @@
   $("[href='?c_id="+ c_id +"']").addClass("active");
 
 
-  var socket = io.connect('/', {transports: ['websocket']} );
+  var socket = io.connect('/dashboard?c_id='+c_id, {transports: ['websocket']} );
+  // var socket = io();
+  // socket.connect('/', {transports: ['websocket']} )
   console.log(socket)
 
   socket.on( 'connect', function() {
