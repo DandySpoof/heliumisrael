@@ -103,6 +103,8 @@ class User(UserMixin, db.Model):
 	allow_ads = db.Column(db.Boolean, nullable=False)
 	role = db.Column(db.Text)
 	time_stamp = db.Column(db.DateTime, nullable=False)
+	status = db.Column(db.Text)
+	active_chats = db.Column(db.Text)
 
 	wallets = relationship("Wallet", back_populates="user")
 	posts = relationship("Post", back_populates="user")
@@ -524,6 +526,7 @@ def messageReceived(methods=['GET', 'POST']):
 def handle_my_custom_event(json, methods=['GET', 'POST']):
 	try:
 		print(f'new message event on chat id - {int(json["chat_id"])}' )
+		print(json)
 		chat = Chat.query.filter_by(id=int(json["chat_id"])).first()
 
 		if int(current_user.get_id()) != int(chat.user_1):
@@ -531,8 +534,16 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
 		else:
 			recipient = User.query.filter_by(id=chat.user_2).first()
 
-		json["sender_name"] = recipient.name
-		json["sender_mail"] = gravatar(recipient.email)
+		sender = User.query.filter_by(id=json["user_id"]).first()
+		print(sender)
+		json["sender_name"] = sender.name
+		json["sender_mail"] = gravatar(sender.email)
+		print(json)
+
+		r_user = load_user(recipient.id)
+		print(r_user)
+		# TODO:handle disconnection of user from this chat
+
 
 		print(json["sender_mail"])
 		time_stamp = datetime.now()
@@ -551,7 +562,9 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
 
 		db.session.commit()
 	except:
-		print('Dashboard entry event: ' + str(json))
+		print(f'Chat entry event. User ID: {json["user_id"]} entered chat: {json["on_chat"]}')
+
+		# TODO:handle disconnection od user
 		pass
 
 
