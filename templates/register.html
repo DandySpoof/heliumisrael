@@ -4,8 +4,10 @@
 
 {% block styling %}
 {{ super() }}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/css/intlTelInput.css">
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.16/css/intlTelInput.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.16/js/intlTelInput.min.js"></script>
+
 
 {% endblock styling %}
 
@@ -43,9 +45,20 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/js/intlTelInput.min.js"></script>
+
 
     <script>
+      function getIp(callback) {
+       fetch('https://ipinfo.io/json?token=575330dab78743', { headers: { 'Accept': 'application/json' }})
+         .then((resp) => resp.json())
+         .catch(() => {
+           return {
+             country: 'us',
+           };
+         })
+         .then((resp) => callback(resp.country));
+      }
+
     var phone_field = document.getElementById('phone');
     phone_field.style.position = 'absolute';
     phone_field.style.top = '-9999px';
@@ -64,14 +77,10 @@
 <!--    // initialise plugin // set flag to proper geocode and call utils.js for validation-->
     var iti = window.intlTelInput(input, {
     initialCountry: "auto",
-      geoIpLookup: function(callback) {
-        $.get('https://ipinfo.io', function() {}, "jsonp").always(function(resp) {
-          var countryCode = (resp && resp.country) ? resp.country : "us";
-          callback(countryCode);
-        });
-      },
-      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/js/utils.js"
+    geoIpLookup: getIp,
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.16/js/utils.js"
     });
+    console.log(input)
 
     var reset = function() {
       input.classList.remove("error");
@@ -99,9 +108,9 @@
     input.addEventListener('keyup', reset);
 
 
-    fancy_phone_iti.setNumber(phone_field.value);
+    iti.setNumber(phone_field.value);
     fancy_phone_field.addEventListener('blur', function() {
-        phone_field.value = fancy_phone_iti.getNumber();
+        phone_field.value = iti.getNumber();
     });
 
     </script>

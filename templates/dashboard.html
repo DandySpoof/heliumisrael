@@ -249,8 +249,10 @@
                                                                   <div class="flex-grow-1 ml-3">
                                                                 {{ recipient.name }}
                                                                 {% endif %}
-                                                                <div class="small"><span
-                                                                        class="fas fa-circle chat-online"></span> Online
+                                                                <div id="{{ recipient.id }}" class="small">
+                                                                  {% if recipient.status == "online"  %}
+                                                                  <span class="fas fa-circle chat-online"></span> Online
+                                                                  {% endif %}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -471,6 +473,19 @@
 <script type="text/javascript">
   let url = window.location.href
 
+  socket = io();
+  socket.on ("user-login", function (user_id) {
+    console.log(user_id)
+    var status = $("#"+user_id);
+    console.log(status)
+    status.html('<span class="fas fa-circle chat-online"></span> Online');
+    })
+
+  socket.on ("user-logout" , function (user_id) {
+    var status = $("#"+user_id);
+    status.remove();
+  })
+
 
   if (url.indexOf("?") > -1 === true) {
 
@@ -532,7 +547,7 @@
 }
 
 
-  socket.on( 'my response', function( msg ) {
+  socket.on( 'my response', function( msg, messageReceived ) {
     console.log( msg )
     if( typeof msg.message !== 'undefined' && msg.message.length > 0 ) {
     var time = new Date()
@@ -552,6 +567,7 @@
         console.log( msg.sender_mail )
         console.log( msg.sender_name )
       }
+      console.log(messageReceived())
 
 
       $( '.chat-messages' ).append(direction1 + `

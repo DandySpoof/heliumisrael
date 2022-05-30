@@ -1,38 +1,40 @@
 from datetime import datetime, timedelta
 from collections.abc import Mapping
 from functools import wraps
+# from dateutil import parser
 from random import randint
 from time import sleep
 import requests as rq
 import os
 
-
-from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, session
-from flask_socketio import SocketIO, join_room, leave_room, emit, send
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user, login_fresh, fresh_login_required
+from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory, session, current_app
+from flask_socketio import SocketIO, join_room, leave_room, emit, send, disconnect
+from flask_sqlalchemy import SQLAlchemy
+from flask_bootstrap import Bootstrap5
 from flask_session import Session
-# import eventlet
+# from flask_wtf import FlaskForm
+
+#Handle Client side Socket.io sessions
+# import eventlet  ## will not work on Heroku
 import gevent
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, or_, and_
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user, login_fresh
-from flask_bootstrap import Bootstrap5
-# from flask_wtf import FlaskForm
+from sqlalchemy import ForeignKey
+
 # from wtforms import StringField, SubmitField
 # from wtforms.validators import DataRequired, URL
 # from rq import Queue
 # from worker import conn
-# import utils
+# import utils  ## will counse cyclic loading Error
 
-from dateutil import parser
 from forms import CreatePostForm, NewUser, LoginForm, CommentForm, Confirm2faForm
 from auth import request_verification_token, check_verification_token
 from flask_gravatar import Gravatar
+from twilio.rest import Client
 import psycopg2
 import gunicorn
-from twilio.rest import Client
 
 # ESTABLISH CONNECTION TO WORKER
 # q = Queue(connection=conn)
@@ -72,6 +74,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 login_manager.login_message = u"To view this page, you must login first"
+login_manager.refresh_view = "login"
 
 
 @login_manager.user_loader
@@ -363,6 +366,7 @@ def register():
 	print(form.phone.data)
 	if form.validate_on_submit():
 		detected_user = User.query.filter_by(email=form.email.data).first()
+		print(detected_user)
 
 		if detected_user == None:
 			hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
@@ -385,6 +389,7 @@ def register():
 			print(f"New registration - {new_user}")
 
 			phone = new_user.phone.strip().replace("-", "")
+			# print(phone)
 			request_verification_token(phone)
 
 			return redirect(url_for("verify"))
@@ -431,6 +436,9 @@ def login():
 		if user != None:
 			if check_password_hash(user.password, form.password.data):
 				login_user(user)
+				user.status = "online"
+				db.session.commit()
+				socketio.emit("user-login", current_user.get_id() ,broadcast=True)
 				return form.redirect("/")
 
 			flash("Email or Password is incorrect. Please try again")
@@ -444,6 +452,10 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
+	current_user.status = "offline"
+	db.session.commit()
+	socketio.emit("user-logout", current_user.get_id(), broadcast=True)
+
 	logout_user()
 	return redirect(url_for("home"))
 
@@ -459,6 +471,7 @@ def price_chart():
 
 
 @app.route("/dashboard")
+@fresh_login_required
 @login_required
 def dashboard():
 

@@ -66,7 +66,7 @@ class NewUser(UserMixin, FlaskForm):
 	name = StringField("Nickname:*", validators=[DataRequired("Please enter your name")])
 	email = EmailField("Email:*", validators=[DataRequired("Please enter your email"),
 	                                         Email("Please enter a valid email address")])
-	phone = StringField("Phone:*", validators=[DataRequired("Please enter your password")])
+	phone = StringField("Phone:*", validators=[DataRequired("Please enter your phone")])
 	password = PasswordField("Password:*", validators=[DataRequired("Please enter your password")])
 	allow_ads = BooleanField("Keep me updated (no spam, we promise)", default="checked", false_values="0")
 	submit = SubmitField("Register")
