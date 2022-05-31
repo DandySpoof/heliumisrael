@@ -749,6 +749,13 @@ footer .copyright {
   color: red;
 }
 
+#chats-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 590px;
+  overflow-y: auto;
+}
+
 .chat-messages {
   display: flex;
   flex-direction: column;
@@ -874,16 +881,15 @@ footer .copyright {
   }
 }
 
-/*typinmg animation*/
-.container-a{
-    position: relative;
+/* Typing... animation */
+.container-a {
+  position: relative;
 }
 
 /* .text {
   font-family: 'Roboto Mono', monospace;
   font-size: 1rem;
 } */
-
 .text_hide {
   position: absolute;
   top: 0;

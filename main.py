@@ -518,9 +518,8 @@ def dashboard():
 
 	print(chat_list)
 
-	# print(user_chats)
 
-	chat = 1
+	# chat = 1
 
 	return render_template("dashboard.html", user_wallets=user_wallets, user_posts=user_posts,
 	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
