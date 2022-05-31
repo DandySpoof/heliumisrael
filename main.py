@@ -366,7 +366,7 @@ def register():
 	print(form.phone.data)
 	if form.validate_on_submit():
 		detected_user = User.query.filter_by(email=form.email.data).first()
-		print(detected_user)
+		# print(detected_user)
 
 		if detected_user == None:
 			hash = generate_password_hash(form.password.data, method='pbkdf2:sha256', salt_length=randint(8, 16))
@@ -483,8 +483,8 @@ def dashboard():
 			msg.read = True
 		db.session.commit()
 
-		print(f"c_id - {c_id}")
-		print(unread_msgs)
+		# print(f"c_id - {c_id}")
+		# print(unread_msgs)
 	except:
 		pass
 
@@ -582,6 +582,17 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
 
 
 	socketio.emit('my response', json, callback=messageReceived)
+
+@socketio.on("user-typing")
+def user_typing(json):
+	socketio.emit('user-typing', json)
+
+@socketio.on("user-stopped-typing")
+def user_stopped_typing(json):
+	socketio.emit('user-stopped-typing', json)
+
+
+
 
 @socketio.on('disconnect')
 def test_disconnect():

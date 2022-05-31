@@ -273,7 +273,11 @@
                                                             </div>
                                                             <div class="flex-grow-1 pl-3">
                                                                 <strong>Sharon Lessman</strong>
-                                                                <div class="text-muted small"><em>Typing...</em></div>
+                                                                <div id="is-typing" class="container-a">
+                                                                  <div class="text_hide"></div>
+                                                                  <div id="is-typing" class="text-muted small text"><em>Typing...</em></div>
+                                                                  <div class="text_cursor"></div>
+                                                                </div>
                                                             </div>
                                                             <div>
                                                                 <button class="btn btn-primary btn-lg mr-1 px-3">
@@ -311,7 +315,6 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <!--TODO: remove message title from DB table and update on server-->
                                                     <!--Messages section-->
                                                     <div id="chat-messages" class="position-relative">
                                                         <div class="chat-messages p-4">
@@ -463,17 +466,20 @@
     </div>
 
     <!--JQuery-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <!--Socket.io-->
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"
             integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
             crossorigin="anonymous"></script>
 
+  <script type="text/javascript" src="static\js\typing-animation.js"></script>
+
 <script type="text/javascript">
   let url = window.location.href
 
   socket = io();
+
   socket.on ("user-login", function (user_id) {
     console.log(user_id)
     var status = $("#"+user_id);
@@ -511,17 +517,74 @@
 
 
   var socket = io.connect('/');
-  // var socket = io();
-  // socket.connect('/', {transports: ['websocket']} )
+  // // var socket = io();
+  // // socket.connect('/', {transports: ['websocket']} )
   console.log(socket)
 
   console.log(socket.connected)
+
+  var lastEvent = 0
+  socket.on ("user-typing", function (event) {
+    var d = new Date();
+    var now = Math.round(d.getTime() / 1000);
+    // console.log(now)
+    // console.log(lastEvent)
+
+    if (now - lastEvent > 3) {
+    lastEvent = event.event_activated
+    // console.log("sender ID - " + event.user_id)
+
+    if (event.user_id != {{ current_user.get_id() }}) {
+      $("#is-typing").html(`
+      <div class="text_hide"></div>
+      <div id="is-typing" class="text-muted small text"><em>Typing...</em></div>
+      <div class="text_cursor"></div>
+      `)
+      // console.log("sender ID - " + event.user_id)
+      typing_animation();
+
+      var user_input = $( '#msg-text' ).val()
+
+      function wait(){
+        socket.emit("user-stopped-typing", {
+          user_id : event.user_id
+        })
+        lastEvent = 0
+      }
+      setTimeout(wait,3000);
+    }}}
+    )
+
+    socket.on ("user-stopped-typing", function (user) {
+      if (user.user_id != {{ current_user.get_id() }}) {
+        $("#is-typing").html(`
+        <div class="text_hide"></div>
+        <div id="is-typing" class="text-muted small"><em>Typing...</em></div>
+        <div class="text_cursor"></div>
+        `)
+        // console.log(user.user_id)
+      }
+      })
 
   socket.on( 'connect', function() {
     socket.emit( 'my event', {
       user_id: {{ current_user.get_id() }},
       on_chat: c_id
     } );
+
+    $('#msg-text').keyup(function (event) {
+      var user_id =  {{ current_user.get_id() }}
+      var d = new Date();
+      var activated = Math.round(d.getTime() / 1000);
+
+      // console.log("user is typing")
+      socket.emit("user-typing", {
+        user_id : user_id,
+        event_activated : activated,
+      })
+    });
+
+
 
     $('#msg-text').keypress(function (event) {
     if (event.which == 13) {
@@ -544,7 +607,7 @@
     } )
 
   } )
-}
+} // closing the if
 
 
   socket.on( 'my response', function( msg, messageReceived ) {
