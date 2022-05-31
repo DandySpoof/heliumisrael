@@ -212,8 +212,10 @@
                                     <div class="container p-0">
                                         <div class="card">
                                             <div class="row g-0">
+
                                                 <!--Chats section-->
                                                 <div id="chats-list" class="col-12 col-lg-5 col-xl-3 border-right">
+
                                                     <!--search box-->
                                                     <div class="px-4 d-none d-md-block">
                                                         <div class="d-flex align-items-center">
@@ -224,6 +226,7 @@
                                                         </div>
                                                     </div>
 
+                                                    <!-- Chats list -->
                                                     {% for chat in user_chats %}
                                                     <a href="?c_id={{ chat['chat_object'].id }}" class="list-group-item list-group-item-action border-0">
                                                         {% if chat['unread_messages'] | int() > 0 %}
@@ -288,7 +291,8 @@
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <button class="btn btn-primary btn-sm me-1 px-2">
+
+                                                                <!-- <button class="btn btn-primary btn-sm me-1 px-2">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                                          height="24" viewBox="0 0 24 24" fill="none"
                                                                          stroke="currentColor" stroke-width="2"
@@ -309,17 +313,37 @@
                                                                               ry="2"></rect>
                                                                     </svg>
                                                                 </button>
-                                                                <button class="btn btn-light border btn-sm me-1 px-2">
+                                                                <button href="#" class="btn btn-light border btn-sm me-1 px-2">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                                          height="24" viewBox="0 0 24 24" fill="none"
                                                                          stroke="currentColor" stroke-width="2"
                                                                          stroke-linecap="round" stroke-linejoin="round"
                                                                          class="feather feather-more-horizontal feather-lg">
                                                                         <circle cx="12" cy="12" r="1"></circle>
-                                                                        <circle cx="19" cy="12" r="1"></circle>
-                                                                        <circle cx="5" cy="12" r="1"></circle>
+                                                                        <circle cx="12" cy="19" r="1"></circle>
+                                                                        <circle cx="12" cy="5" r="1"></circle>
                                                                     </svg>
-                                                                </button>
+                                                                </button> -->
+
+                                                                <div class="dropdown dropstart">
+                                                                  <button class="btn btn-secondary " type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                         height="24" viewBox="0 0 24 24" fill="none"
+                                                                         stroke="currentColor" stroke-width="2"
+                                                                         stroke-linecap="round" stroke-linejoin="round"
+                                                                         class="feather feather-more-horizontal feather-lg">
+                                                                        <circle cx="12" cy="12" r="1"></circle>
+                                                                        <circle cx="12" cy="19" r="1"></circle>
+                                                                        <circle cx="12" cy="5" r="1"></circle>
+                                                                    </svg>
+                                                                  </button>
+                                                                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                                    <li><a class="dropdown-item" href="#">Away</a></li>
+                                                                    <li><hr class="dropdown-divider"></li>
+                                                                    <li><a class="dropdown-item" href="#">Delete Chat</a></li>
+                                                                    <li><a class="dropdown-item" href="#">Block user</a></li>
+                                                                  </ul>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

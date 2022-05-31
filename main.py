@@ -501,20 +501,21 @@ def dashboard():
 	chat_list = []
 	for chat in user_chats:
 		# print(chat)
-		msgs = Message.query.filter_by(chat_id=chat.id).all()
-		unread_msgs = 0
-		for msg in msgs:
-			if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
-				unread_msgs += 1
+		if not chat.hide:
+			msgs = Message.query.filter_by(chat_id=chat.id).all()
+			unread_msgs = 0
+			for msg in msgs:
+				if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
+					unread_msgs += 1
 
-		if len(chat_list) == 0 :
-			chat_list.append({"chat_object": chat, "unread_messages": unread_msgs})
+			if len(chat_list) == 0 :
+				chat_list.append({"chat_object": chat, "unread_messages": unread_msgs})
 
-		elif chat.l_time_stamp > chat_list[0]["chat_object"].l_time_stamp or unread_msgs > 0:
-			chat_list.insert(0,{"chat_object": chat, "unread_messages": unread_msgs})
+			elif chat.l_time_stamp > chat_list[0]["chat_object"].l_time_stamp or unread_msgs > 0:
+				chat_list.insert(0,{"chat_object": chat, "unread_messages": unread_msgs})
 
-		else:
-			chat_list.insert(1,{"chat_object": chat, "unread_messages": unread_msgs})
+			else:
+				chat_list.insert(1,{"chat_object": chat, "unread_messages": unread_msgs})
 
 	print(chat_list)
 
