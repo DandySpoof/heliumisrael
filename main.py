@@ -113,10 +113,19 @@ class User(UserMixin, db.Model):
 	posts = relationship("Post", back_populates="user")
 	comments = relationship("Comment", back_populates="user")
 	messages = relationship("Message", back_populates="user")
+	blocked_users = relationship("BlockedUsers", back_populates="user")
 
 	def __repr__(self):
 		return f"User ID: {self.id}"
 
+class BlockedUsers(db.Model):
+	__tablename__ = "blocked"
+	id = db.Column(db.Integer, primary_key=True)
+
+	blocked_user_id = db.Column(db.Integer, ForeignKey("users.id"))
+	user = relationship("User", back_populates="blocked_users")
+
+db.create_all()
 
 class Wallet(db.Model):
 	__tablename__ = "wallets"
@@ -189,8 +198,10 @@ class Chat(db.Model):
 	time_stamp = db.Column(db.DateTime, nullable=False)
 	user_1 = db.Column(db.Integer, nullable=False)
 	user_2 = db.Column(db.Integer, nullable=False)
-	hide = db.Column(db.Boolean, nullable=False)
 	l_time_stamp = db.Column(db.DateTime, nullable=False)
+	user_1_del = db.Column(db.DateTime)
+	user_2_del = db.Column(db.DateTime)
+
 
 	messages = relationship("Message", back_populates="chat")
 
@@ -475,10 +486,32 @@ def price_chart():
 @login_required
 def dashboard():
 
+	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
+	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
+	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
+	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
+	user_chats = as_user_1 + as_user_2
+	# print(current_user.get_id())
+
 	try:
 		c_id = request.args.get("c_id")
-		msgs =  Message.query.filter_by(chat_id=int(c_id)).all()
+
+		# Prevents a user from entring a deleted chat or into chats he is not part of.
+		chat = Chat.query.filter_by(id=int(c_id)).first()
+		#TODO: configure what's happens when a user initiate new chat when there's already a deleted chat with the same recipient
+		if chat in user_chats:
+			if int(current_user.get_id()) == chat.user_1 and chat.user_1_del != None and chat.user_1_del > chat.l_time_stamp \
+					or int(current_user.get_id()) == chat.user_2 and chat.user_2_del != None and chat.user_2_del > chat.l_time_stamp:
+				return redirect(url_for("dashboard"))
+			else:
+				pass
+		else:
+			return redirect(url_for("dashboard"))
+
+		msgs = Message.query.filter_by(chat_id=int(c_id)).all()
 		unread_msgs = [msg for msg in msgs if msg.read == False and int(current_user.get_id()) != int(msg.user_id)]
+		print(f"Unread messages - {unread_msgs}")
+
 		for msg in unread_msgs:
 			msg.read = True
 		db.session.commit()
@@ -490,41 +523,52 @@ def dashboard():
 
 	# print(current_user.name)
 
-	user_wallets = Wallet.query.filter_by(user_id=current_user.get_id()).all()
-	user_posts = Post.query.filter_by(user_id=current_user.get_id()).all()
-	user_messages = Message.query.filter_by(user_id=current_user.get_id()).all()
-	as_user_1 = Chat.query.filter_by(user_1=current_user.get_id()).all()
-	as_user_2 = Chat.query.filter_by(user_2=current_user.get_id()).all()
-	user_chats = as_user_1 + as_user_2
-	# print(current_user.get_id())
+	def add_chat():
+		msgs = Message.query.filter_by(chat_id=chat.id).all()
+		unread_msgs = 0
+		for msg in msgs:
+			if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
+				unread_msgs += 1
+
+		if len(chat_list) == 0:
+			chat_list.append({"chat_object": chat, "unread_messages": unread_msgs})
+
+		elif chat.l_time_stamp > chat_list[0]["chat_object"].l_time_stamp or unread_msgs > 0:
+			chat_list.insert(0, {"chat_object": chat, "unread_messages": unread_msgs})
+
+		else:
+			chat_list.insert(1, {"chat_object": chat, "unread_messages": unread_msgs})
 
 	chat_list = []
 	for chat in user_chats:
-		# print(chat)
-		if not chat.hide:
-			msgs = Message.query.filter_by(chat_id=chat.id).all()
-			unread_msgs = 0
-			for msg in msgs:
-				if msg.read == False and int(msg.user_id) != int(current_user.get_id()):
-					unread_msgs += 1
+		if chat.user_1_del == None == chat.user_2_del:
+			add_chat()
 
-			if len(chat_list) == 0 :
-				chat_list.append({"chat_object": chat, "unread_messages": unread_msgs})
-
-			elif chat.l_time_stamp > chat_list[0]["chat_object"].l_time_stamp or unread_msgs > 0:
-				chat_list.insert(0,{"chat_object": chat, "unread_messages": unread_msgs})
-
+		elif int(current_user.get_id()) == chat.user_1:
+			# print(f"current is user_1 - {int(current_user.get_id()) == chat.user_1}")
+			if chat.user_1_del != None:
+				if chat.l_time_stamp > chat.user_1_del:
+					add_chat()
 			else:
-				chat_list.insert(1,{"chat_object": chat, "unread_messages": unread_msgs})
+				add_chat()
 
+		elif int(current_user.get_id()) == chat.user_2:
+			# print(f"current is user_2 - {int(current_user.get_id()) == chat.user_2}")
+			if chat.user_2_del != None:
+				if chat.l_time_stamp > chat.user_2_del:
+					add_chat()
+			else:
+				add_chat()
+
+	print(user_chats)
 	print(chat_list)
 
 
 	# chat = 1
 
 	return render_template("dashboard.html", user_wallets=user_wallets, user_posts=user_posts,
-	                       user_messages=user_messages, miner_class=Miner, user_class=User, message_class=Message,
-	                       user_chats=chat_list, chat=c_id, chat_class=Chat)
+	                       miner_class=Miner, user_class=User, message_class=Message,
+	                       user_chats=chat_list, chat=c_id, chat_class=Chat, datetime=datetime)
 
 @app.route("/contact")
 def contact():
@@ -576,9 +620,7 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
 		db.session.commit()
 	except:
 		print(f'Chat entry event. User ID: {json["user_id"]} entered chat: {json["on_chat"]}')
-
-		# TODO:handle disconnection od user
-		pass
+		#TODO:handle disconnection of user
 
 
 	socketio.emit('my response', json, callback=messageReceived)
@@ -591,8 +633,20 @@ def user_typing(json):
 def user_stopped_typing(json):
 	socketio.emit('user-stopped-typing', json)
 
+@socketio.on("chat-delete")
+def chat_delete(json):
+	print(json["user_id"])
+	print(json["chat_id"])
+	chat = Chat.query.filter_by(id=json["chat_id"]).first()
+	time_stamp = datetime.now()
+	if chat.user_1 == int(json["user_id"]):
+		chat.user_1_del = time_stamp
+	else:
+		chat.user_2_del = time_stamp
 
-
+	db.session.commit()
+	print(type(chat.user_1))
+	print(type(chat.user_2))
 
 @socketio.on('disconnect')
 def test_disconnect():

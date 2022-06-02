@@ -261,14 +261,14 @@
                                                 <!--Messaging section-->
                                                   {% if chat == None %}
                                                   <div id="messaging-section" class="d-flex justify-content-center align-items-center col-12 col-lg-7 col-xl-9">
-                                                          <div>
-                                                            <i class="fa-regular fa-message fa-5x">  H i . . .</i>
-                                                          </div>
+                                                  <div>
+                                                    <i class="fa-regular fa-message fa-5x">  H i . . .</i>
+                                                  </div>
                                                   {% else %}
                                                   <div id="messaging-section" class="col-12 col-lg-7 col-xl-9">
 
                                                     <!-- chat header -->
-                                                    <div class="py-2 px-4 border-bottom d-none d-lg-block">
+                                                    <div class="py-2 px-4 border-bottom bg-light">
                                                         <div class="d-flex align-items-center py-1">
                                                             <div class="position-relative">
                                                               <!-- sharon -->
@@ -284,10 +284,11 @@
                                                             </div>
                                                             <div class="flex-grow-1 pl-3">
                                                                 <strong>{{ recipient.name }}</strong>
-                                                                <div id="is-typing" class="container-a">
-                                                                  <div class="text_hide"></div>
-                                                                  <div id="is-typing" class="text-muted small text"><em>Typing...</em></div>
-                                                                  <div class="text_cursor"></div>
+                                                                <div id="is-typing" class="typing">
+                                                                  <h2>Typing...</h2>
+                                                                  <!-- <div class="text_hide bg-light"></div>
+                                                                  <div id="is-typing" class="text-muted small text bg-light"><em>Typing...</em></div>
+                                                                  <div class="text_cursor"></div> -->
                                                                 </div>
                                                             </div>
                                                             <div>
@@ -340,20 +341,56 @@
                                                                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                                                     <li><a class="dropdown-item" href="#">Away</a></li>
                                                                     <li><hr class="dropdown-divider"></li>
-                                                                    <li><a class="dropdown-item" href="#">Delete Chat</a></li>
+                                                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Delete Chat</a></li>
                                                                     <li><a class="dropdown-item" href="#">Block user</a></li>
                                                                   </ul>
+
+                                                                  <!-- Modal -->
+                                                                  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                                                    <div class="modal-dialog">
+                                                                      <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                          <h5 class="modal-title" id="staticBackdropLabel">Delete Chat</h5>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                          Are you sure you want to delete this chat?
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                          <button id="delete" type="button" class="btn btn-primary">Yes. Delete</button>
+                                                                        </div>
+                                                                      </div>
+                                                                    </div>
+                                                                  </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
+
                                                     <!--Messages section-->
                                                     <div id="chat-messages" class="position-relative">
-                                                        <div class="chat-messages p-4">
-                                                            {% set messages = message_class.query.filter_by(chat_id=chat).all() %}
-                                                            {% for msg in messages %}
+                                                      <div class="chat-messages p-4">
+                                                          {% set chat_object = chat_class.query.filter_by(id=chat).first() %}
+                                                          {% set messages = message_class.query.filter_by(chat_id=chat).all() %}
+
+
+                                                          {% set del_time = datetime(2022, 1, 1) %}
+
+                                                          {% if chat_object.user_1_del != None %}
+                                                            {% if current_user.get_id() | int() == chat_object.user_1 %}
+                                                              {% set del_time = chat_object.user_1_del %}
+                                                            {% endif %}
+                                                          {% endif %}
+
+                                                          {% if chat_object.user_2_del != None %}
+                                                            {% if current_user.get_id() | int() == chat_object.user_2 %}
+                                                              {% set del_time = chat_object.user_2_del %}
+                                                            {% endif %}
+                                                          {% endif %}
+
+                                                          {% for msg in messages if msg.time_stamp > del_time %}
                                                             {% if msg.user_id | int() == current_user.get_id() | int() %}
-                                                            <div class="chat-message-right pb-4">
+                                                              <div class="chat-message-right pb-4">
                                                                 <div>
                                                                     <img id="gravatar"
                                                                          src="{{ current_user.email | gravatar }}"
@@ -367,33 +404,31 @@
                                                                 <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
                                                                     <div class="font-weight-bold mb-1">You</div>
 
-                                                                    {% else %}
-                                                                    {% set sender =
-                                                                    user_class.query.filter_by(id=msg.user_id).first()
-                                                                    %}
-                                                                    <div class="chat-message-left pb-4">
-                                                                        <div>
-                                                                            <img id="gravatar"
-                                                                                 src="{{ sender.email | gravatar }}"
-                                                                                 alt="{{ sender.mame }}"
-                                                                                 width="40" height="40">
-                                                                            <div class="text-muted small text-nowrap mt-2">
-                                                                                {% set time_stamp = msg.time_stamp |
-                                                                                string() %}
-                                                                                {{ time_stamp[11:16] }}
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
-                                                                            <div class="font-weight-bold mb-1">
-                                                                                {{ sender.name }}
-                                                                            </div>
-                                                                            {% endif %}
-                                                                            {{ msg.body }}
-                                                                        </div>
+                                                          {% else %}
+                                                            {% set sender = user_class.query.filter_by(id=msg.user_id).first() %}
+                                                              <div class="chat-message-left pb-4">
+                                                                  <div>
+                                                                      <img id="gravatar"
+                                                                           src="{{ sender.email | gravatar }}"
+                                                                           alt="{{ sender.mame }}"
+                                                                           width="40" height="40">
+                                                                      <div class="text-muted small text-nowrap mt-2">
+                                                                          {% set time_stamp = msg.time_stamp |
+                                                                          string() %}
+                                                                          {{ time_stamp[11:16] }}
+                                                                      </div>
+                                                                  </div>
+                                                                  <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
+                                                                      <div class="font-weight-bold mb-1">
+                                                                          {{ sender.name }}
+                                                                      </div>
+                                                          {% endif %}
+                                                          {{ msg.body }}
                                                                     </div>
-                                                                    {% endfor %}
-                                                                </div>
-                                                            </div>
+                                                                  </div>
+                                                          {% endfor %}
+                                                        </div>
+                                                    </div>
 
                                                             <div class="flex-grow-0 py-3 px-4 border-top">
                                                                 <div class="input-group">
@@ -571,13 +606,8 @@
     // console.log("sender ID - " + event.user_id)
 
     if (event.user_id != {{ current_user.get_id() }}) {
-      $("#is-typing").html(`
-      <div class="text_hide"></div>
-      <div id="is-typing" class="text-muted small text"><em>Typing...</em></div>
-      <div class="text_cursor"></div>
-      `)
+      $("#is-typing").show()
       // console.log("sender ID - " + event.user_id)
-      typing_animation();
 
       var user_input = $( '#msg-text' ).val()
 
@@ -593,11 +623,7 @@
 
     socket.on ("user-stopped-typing", function (user) {
       if (user.user_id != {{ current_user.get_id() }}) {
-        $("#is-typing").html(`
-        <div class="text_hide"></div>
-        <div id="is-typing" class="text-muted small"><em>Typing...</em></div>
-        <div class="text_cursor"></div>
-        `)
+        $("#is-typing").hide()
         // console.log(user.user_id)
       }
       })
@@ -620,7 +646,13 @@
       })
     });
 
-
+    $("#delete").click(function (event){
+      socket.emit("chat-delete", {
+        user_id :{{ current_user.get_id() }},
+        chat_id : {{ chat }}
+      })
+      window.location.reload();
+    })
 
     $('#msg-text').keypress(function (event) {
     if (event.which == 13) {
