@@ -501,7 +501,8 @@ def dashboard():
 		#TODO: configure what's happens when a user initiate new chat when there's already a deleted chat with the same recipient
 		if chat in user_chats:
 			if int(current_user.get_id()) == chat.user_1 and chat.user_1_del != None and chat.user_1_del > chat.l_time_stamp \
-					or int(current_user.get_id()) == chat.user_2 and chat.user_2_del != None and chat.user_2_del > chat.l_time_stamp:
+					or int(current_user.get_id()) == chat.user_2 and chat.user_2_del != None and chat.user_2_del > chat.l_time_stamp\
+					or chat.l_time_stamp == None:
 				return redirect(url_for("dashboard"))
 			else:
 				pass
@@ -541,24 +542,25 @@ def dashboard():
 
 	chat_list = []
 	for chat in user_chats:
-		if chat.user_1_del == None == chat.user_2_del:
-			add_chat()
-
-		elif int(current_user.get_id()) == chat.user_1:
-			# print(f"current is user_1 - {int(current_user.get_id()) == chat.user_1}")
-			if chat.user_1_del != None:
-				if chat.l_time_stamp > chat.user_1_del:
-					add_chat()
-			else:
+		if chat.l_time_stamp != None:
+			if chat.user_1_del == None == chat.user_2_del:
 				add_chat()
 
-		elif int(current_user.get_id()) == chat.user_2:
-			# print(f"current is user_2 - {int(current_user.get_id()) == chat.user_2}")
-			if chat.user_2_del != None:
-				if chat.l_time_stamp > chat.user_2_del:
+			elif int(current_user.get_id()) == chat.user_1:
+				# print(f"current is user_1 - {int(current_user.get_id()) == chat.user_1}")
+				if chat.user_1_del != None:
+					if chat.l_time_stamp > chat.user_1_del:
+						add_chat()
+				else:
 					add_chat()
-			else:
-				add_chat()
+
+			elif int(current_user.get_id()) == chat.user_2:
+				# print(f"current is user_2 - {int(current_user.get_id()) == chat.user_2}")
+				if chat.user_2_del != None:
+					if chat.l_time_stamp > chat.user_2_del:
+						add_chat()
+				else:
+					add_chat()
 
 	print(user_chats)
 	print(chat_list)
@@ -570,9 +572,22 @@ def dashboard():
 	                       miner_class=Miner, user_class=User, message_class=Message,
 	                       user_chats=chat_list, chat=c_id, chat_class=Chat, datetime=datetime)
 
+@app.route("/profile/<user_id>")
+def profile(user_id):
+	user = User.query.filter_by(id=int(user_id)).first()
+	user_posts = Post.query.filter_by(user_id=int(user_id)).all()
+
+	return render_template("profile.html", user=user, user_posts=user_posts, user_class=User, message_class=Message,
+	                       chat_class=Chat, datetime=datetime)
+
 @app.route("/contact")
 def contact():
 	return "<p> contact page</p>"
+
+
+
+
+
 
 
 def messageReceived(methods=['GET', 'POST']):
