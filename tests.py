@@ -4,6 +4,10 @@ from dateutil import parser
 from time import sleep
 import requests as rq
 import csv
+from main import db, Miner, Wallet, NewUser, Prices, Post, Comment, Message, Chat
+from sqlalchemy import and_, or_, not_
+
+
 #
 # time = datetime.now()
 # last_7_days = time - timedelta(days=7)
@@ -449,3 +453,21 @@ import csv
 # a= datetime.now()
 #
 # print(a)
+
+
+# user_1 = 4
+# user_2 = 3
+#
+# chats = Chat.query.filter(
+# 	and_(
+# 		or_(
+# 			Chat.user_1.like(user_1),
+# 			Chat.user_1.like(user_2),
+# 		),
+# 		or_(
+# 			Chat.user_2.like(user_1),
+# 			Chat.user_2.like(user_2),
+# 		)
+# )
+# ).all()
+# print(chats)

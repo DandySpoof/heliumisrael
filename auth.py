@@ -26,7 +26,6 @@ def request_verification_token(phone):
 			.services(service_sid) \
 			.verifications \
 			.create(to=phone, channel='call')
-#TODO check why this funtion isn't working. seems there's something wrong with the phone number
 
 # request_verification_token(number)
 

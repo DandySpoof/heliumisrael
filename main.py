@@ -21,7 +21,8 @@ import gevent
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, and_, or_, not_
+
 
 # from wtforms import StringField, SubmitField
 # from wtforms.validators import DataRequired, URL
@@ -498,7 +499,6 @@ def dashboard():
 
 		# Prevents a user from entring a deleted chat or into chats he is not part of.
 		chat = Chat.query.filter_by(id=int(c_id)).first()
-		#TODO: configure what's happens when a user initiate new chat when there's already a deleted chat with the same recipient
 		if chat in user_chats:
 			if int(current_user.get_id()) == chat.user_1 and chat.user_1_del != None and chat.user_1_del > chat.l_time_stamp \
 					or int(current_user.get_id()) == chat.user_2 and chat.user_2_del != None and chat.user_2_del > chat.l_time_stamp\
@@ -572,13 +572,86 @@ def dashboard():
 	                       miner_class=Miner, user_class=User, message_class=Message,
 	                       user_chats=chat_list, chat=c_id, chat_class=Chat, datetime=datetime)
 
-@app.route("/profile/<user_id>")
+
+@app.route("/profile/<user_id>", methods=["GET", "POST"])
 def profile(user_id):
 	user = User.query.filter_by(id=int(user_id)).first()
 	user_posts = Post.query.filter_by(user_id=int(user_id)).all()
 
+	if request.method == "POST":
+		user_1 = int(user_id)                #Recipient
+		user_2 = int(current_user.get_id())  #Sender
+
+		if user_1 == user_2:
+			return redirect(url_for("dashboard"))
+
+		# Chek if the two parties already have an active chat
+		chat = Chat.query.filter(
+			and_(
+				or_(
+					Chat.user_1.like(user_1),
+					Chat.user_1.like(user_2),
+				),
+				or_(
+					Chat.user_2.like(user_1),
+					Chat.user_2.like(user_2),
+				)
+			)
+		).all()
+
+
+		def create_chat():
+			new_chat = Chat(
+				time_stamp=time_stamp,
+				user_1=user_1,
+				user_2=user_2,
+				l_time_stamp=time_stamp,
+			)
+			db.session.add(new_chat)
+			db.session.commit()
+
+			return new_chat.id
+
+		time_stamp = datetime.now()
+
+		if chat:
+			new_msg = Message(
+				chat_id=int(chat[0].id),
+				user_id=user_2,
+				body=request.values.get("post-field"),
+				time_stamp=time_stamp,
+				recipient=user_1,
+				read=False
+			)
+			db.session.add(new_msg)
+			chat[0].l_time_stamp = time_stamp
+			db.session.commit()
+
+			# print("Inserted a new message")
+			return redirect(url_for("dashboard") + "?c_id=" + str(chat[0].id))
+
+		else:
+			chat = create_chat()
+			# print(chat)
+			new_msg = Message(
+				chat_id=chat,
+				user_id=user_2,
+				body=request.values.get("post-field"),
+				time_stamp=time_stamp,
+				recipient=user_1,
+				read=False
+			)
+			db.session.add(new_msg)
+			Chat.query.filter_by(id=chat).first().l_time_stamp = time_stamp
+			db.session.commit()
+			return redirect(url_for("dashboard") + "?c_id=" + str(chat))
+
+			# print("Created a new chat and inserted a new message")
+
+
 	return render_template("profile.html", user=user, user_posts=user_posts, user_class=User, message_class=Message,
 	                       chat_class=Chat, datetime=datetime)
+
 
 @app.route("/contact")
 def contact():
@@ -614,7 +687,6 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
 
 		r_user = load_user(recipient.id)
 		print(r_user)
-		# TODO:handle disconnection of user from this chat
 
 
 		print(json["sender_mail"])

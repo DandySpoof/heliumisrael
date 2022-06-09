@@ -119,20 +119,20 @@
                             <li class="nav-item flex-sm-fill">
                                 <a id="miners-tab" data-toggle="tab" href="#miners" role="tab" aria-controls="miners"
                                    aria-selected="true"
-                                   class="nav-link text-uppercase font-weight-bold mr-sm-3 rounded-0 active">My
+                                   class="nav-link text-uppercase fw-bold mr-sm-3 rounded-0 active">My
                                     Miners</a>
                             </li>
 
                             <li class="nav-item flex-sm-fill">
                                 <a id="posts-tab" data-toggle="tab" href="#posts" role="tab"
                                    aria-controls="posts" aria-selected="false"
-                                   class="nav-link text-uppercase font-weight-bold mr-sm-3 rounded-0">My Posts</a>
+                                   class="nav-link text-uppercase fw-bold mr-sm-3 rounded-0">My Posts</a>
                             </li>
 
                             <li class="nav-item flex-sm-fill">
                                 <a id="messages-tab" data-toggle="tab" href="#messages" role="tab"
                                    aria-controls="messages" aria-selected="false"
-                                   class="nav-link text-uppercase font-weight-bold rounded-0">Messages</a>
+                                   class="nav-link text-uppercase fw-bold rounded-0">Messages</a>
                             </li>
                         </ul>
 
@@ -230,7 +230,7 @@
                                                     {% for chat in user_chats %}
                                                     <a href="?c_id={{ chat['chat_object'].id }}" class="list-group-item list-group-item-action border-0">
                                                         {% if chat['unread_messages'] | int() > 0 %}
-                                                        <div class="badge bg-success float-right">{{ chat['unread_messages'] }}</div>
+                                                        <div class="badge bg-success float-end">{{ chat['unread_messages'] }}</div>
                                                         {% endif %}
 
                                                         <div class="d-flex align-items-start">
@@ -402,7 +402,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
-                                                                    <div class="font-weight-bold mb-1">You</div>
+                                                                    <div class="fw-bold mb-1">You</div>
 
                                                           {% else %}
                                                             {% set sender = user_class.query.filter_by(id=msg.user_id).first() %}
@@ -419,7 +419,7 @@
                                                                       </div>
                                                                   </div>
                                                                   <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
-                                                                      <div class="font-weight-bold mb-1">
+                                                                      <div class="fw-bold mb-1">
                                                                           {{ sender.name }}
                                                                       </div>
                                                           {% endif %}
@@ -577,7 +577,15 @@
   $("#messages-tab").addClass("active");
   $("#messages").addClass("show active");
 
-  window.location.hash = "jump-here";
+  $([document.documentElement, document.body]).animate({
+        scrollTop: $("#jump-here").offset().top
+    }, 100);
+
+  var msgBox = $( '.chat-messages' )
+  msgBox.animate({scrollTop: msgBox[0].scrollHeight}, 'slow');
+
+  // window.location.hash = "jump-here";
+
 
   var urlParams = new URLSearchParams(window.location.search)
   var c_id = urlParams.get('c_id')
@@ -677,6 +685,8 @@
 } // closing the if
 
 
+
+
   socket.on( 'my response', function( msg, messageReceived ) {
     console.log( msg )
     if( typeof msg.message !== 'undefined' && msg.message.length > 0 ) {
@@ -708,11 +718,18 @@
         `</div>
         </div>
         `+ direction2 +`
-          <div class="font-weight-bold mb-1">`+ sender +`</div>`
+          <div class="fw-bold mb-1">`+ sender +`</div>`
             + msg.message +
         `</div>
       </div>`
     )
+
+
+    // console.log(msgBox)
+    // console.log(msgBox[0])
+    // console.log(msgBox[0].scrollHeight)
+    var msgBox = $( '.chat-messages' )
+    msgBox.animate({scrollTop: msgBox[0].scrollHeight}, 'slow');
 
         }
     })
