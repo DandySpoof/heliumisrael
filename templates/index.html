@@ -23,10 +23,10 @@
                 <div class="col-md-3">
                     <div class="card-counter danger selected ">
                       <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-3">
                           <i class="fa fa-wifi"></i>
                         </div>
-                        <div class="col-md-9 text-end">
+                        <div class="col-9 text-end">
                           <span class="count-numbers">{{ miners_count }}</span>
                           <span class="count-name">Miners (online)</span>
                         </div>
@@ -38,10 +38,10 @@
                   <a href="{{ url_for('wallets') }}">
                     <div class="card-counter danger ">
                       <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-3">
                           <i class="fa fa-wallet"></i>
                         </div>
-                        <div class="col-md-9 text-end">
+                        <div class="col-9 text-end">
                           <span class="count-numbers">{{ t_wallets }}</span>
                           <span class="count-name">Wallets</span>
                         </div>
@@ -54,10 +54,10 @@
                   <a href="{{ url_for('latest_miners') }}">
                     <div class="card-counter danger ">
                       <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-3">
                           <i class="fa fa-star"></i>
                         </div>
-                        <div class="col-md-9 text-end">
+                        <div class="col-9 text-end">
                           <span class="count-numbers">{{ latest }}</span>
                           <span class="count-name">New Miners (7d)</span>
                         </div>
@@ -70,10 +70,10 @@
                   <a href="{{ url_for('price_chart') }}">
                     <div class="card-counter danger ">
                       <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-3">
                           <i class="fa fa-dollar-sign"></i>
                         </div>
-                        <div class="col-md-9 text-end">
+                        <div class="col-9 text-end">
                           <span class="count-numbers">{{ oracle_price }}</span>
                           <span class="count-name">Oracle Price</span>
                         </div>
