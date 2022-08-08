@@ -20,16 +20,16 @@
     <div class="container" id="homepage-counter">
       <div class="row">
 
-        <div class="col-md-9">
+        <div class="col-md-4">
           <a target="_blank" style="color:#4087ea"
              href="https://explorer.helium.com/accounts/{{ wallet.address }}">
             <div class="card-counter danger ">
               <div class="row">
-                <div class="col-md-3">
+                <div class="col-3">
                   <i class="fa fa-wallet"></i>
                 </div>
-                <div class="col-md-9 text-end">
-                  <span id="wallet-special" class="count-numbers">{{ wallet.address }}</span>
+                <div class="col-9 text-end">
+                  <span id="wallet-special" class="count-numbers">{{ wallet.address[:8] }}...{{ wallet.address[::-8] }}</span>
                   <span class="count-name">Wallet</span>
                 </div>
               </div>
@@ -38,15 +38,47 @@
         </div>
 
         <div class="col-md-3">
-          <a target="_blank" style="color:#4087ea" href="#">
+          <a style="color:#4087ea" href="">
             <div class="card-counter danger ">
               <div class="row">
-                <div class="col-md-3">
+                <div class="col-3">
                   <i class="fa fa-dollar-sign"></i>
                 </div>
-                <div class="col-md-9 text-end">
+                <div class="col-9 text-end">
                   <span id="wallet-special" class="count-numbers">{{ wallet.balance | round(2, 'common') }}</span>
                   <span class="count-name">Balance (HNT)</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-2">
+          <a style="color:#4087ea" href="">
+            <div class="card-counter danger ">
+              <div class="row">
+                <div class="col-3">
+                  <i class="fa fa-wifi"></i>
+                </div>
+                <div class="col-9 text-end">
+                  <span id="wallet-special" class="count-numbers">{{ miners | length() + miners_abroad | length() }}</span>
+                  <span class="count-name">Miners</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-3">
+          <a style="color:#4087ea" href="">
+            <div class="card-counter danger ">
+              <div class="row">
+                <div class="col-3">
+                  <i class="fa fa-wifi"></i>
+                </div>
+                <div class="col-9 text-end">
+                  <span id="wallet-special" class="count-numbers">Claim this Miner</span>
+                  <span class="count-name">Make it yours</span>
                 </div>
               </div>
             </div>

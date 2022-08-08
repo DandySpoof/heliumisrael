@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from collections.abc import Mapping
-from functools import wraps
 # from dateutil import parser
+from functools import wraps
 from random import randint
 from time import sleep
 import requests as rq
@@ -20,9 +20,8 @@ from flask_session import Session
 import gevent
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey, and_, or_, not_
-
+from sqlalchemy.orm import relationship
 
 # from wtforms import StringField, SubmitField
 # from wtforms.validators import DataRequired, URL
@@ -363,6 +362,7 @@ def wallet(address):
 
 	israel_miners = []
 	abroad_miners = []
+
 	for miner in wallet.miners:
 		if miner.country == "Israel":
 			israel_miners.append(miner)
@@ -656,10 +656,6 @@ def profile(user_id):
 @app.route("/contact")
 def contact():
 	return "<p> contact page</p>"
-
-
-
-
 
 
 
