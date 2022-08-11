@@ -1339,3 +1339,12 @@ body.menubar-top .profile-wrapper {
     right: 32px;
     bottom: 32px
 }
+
+
+@media only screen and (max-width:768px) {
+
+  .card-view-title,
+  .card-view-value  {
+    font-size: 12px;
+  }
+}

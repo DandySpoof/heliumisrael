@@ -5,6 +5,7 @@ from functools import wraps
 from random import randint
 from time import sleep
 import requests as rq
+import utils
 import os
 
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user, login_fresh, fresh_login_required
@@ -80,6 +81,7 @@ login_manager.refresh_view = "login"
 @login_manager.user_loader
 def load_user(user_id):
 	return User.query.get(int(user_id))
+	# Return current user object
 
 # eventlet.monkey_patch()
 
@@ -241,45 +243,42 @@ class Activity(db.Model):
 # db.create_all()
 
 
-##Security gateway function that allows only un-verified users (verified=0) to enter the verify route
+
 def only_not_verified(func):
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if current_user.is_active and current_user.verified == False:
-            return func(*args, **kwargs)
-        print(type(current_user.verified))
-        print("abort 403")
-        return abort(403)
+	"""
+	Security gateway function that allows only un-verified users (verified=0) to enter the /verify route
+	"""
 
-    return decorated_function
+	@wraps(func)
+	def decorated_function(*args, **kwargs):
+	    if current_user.is_active and current_user.verified == False:
+	        return func(*args, **kwargs)
+	    print(type(current_user.verified))
+	    print("abort 403")
+	    return abort(403)
 
-#Security gateway function that allows only admin (id=1) to enter defined routs
+	return decorated_function
+
+
 def admin_only(func):
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if current_user.is_active and current_user.role == "admin":
-            return func(*args, **kwargs)
-        print("abort 403")
-        return abort(403)
+	"""
+	Security gateway function that allows only admin (id==1) to enter defined routs
+	"""
+	@wraps(func)
+	def decorated_function(*args, **kwargs):
+	    if current_user.is_active and current_user.role == "admin":
+	        return func(*args, **kwargs)
+	    print("abort 403")
+	    return abort(403)
 
-    return decorated_function
-
-def get_oracle_price():
-	try:
-		response = rq.get("https://api.helium.io/v1/oracle/prices/current")
-		response.raise_for_status()
-	except:
-		return 0
-	response = response.json()
-	price = str(response["data"]["price"])
-	hnt = round(int(price) / 100000000 , 2)
-	return hnt
+	return decorated_function
 
 
-## Construct APP structure
+
+## Construct app routes
 @app.route("/")
 def home():
-	hnt = get_oracle_price()
+	hnt = utils.get_oracle_price()
 	print(hnt)
 
 	def other_miners(wallet_address):
@@ -306,7 +305,7 @@ def home():
 @app.route("/wallets")
 def wallets():
 	wallets = Wallet.query.all()
-	hnt = get_oracle_price()
+	hnt = utils.get_oracle_price()
 
 	def other_miners(wallet_address):
 		""" This function returns the count of miners for the tested wallet .
@@ -332,7 +331,7 @@ def wallets():
 
 @app.route("/latest")
 def latest_miners():
-	hnt = get_oracle_price()
+	hnt = utils.get_oracle_price()
 
 	def other_miners(wallet_address):
 		""" This function returns the count of miners for the tested wallet .
@@ -477,7 +476,7 @@ def price_chart():
 	prices = Prices.query.all()
 	tdy_avg = round(prices[-1].price,2)
 	print(tdy_avg)
-	hnt = get_oracle_price()
+	hnt = utils.get_oracle_price()
 
 	return render_template("prices.html", prices=prices, oracle_price=hnt, daily_avarage=tdy_avg)
 
