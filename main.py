@@ -5,7 +5,7 @@ from functools import wraps
 from random import randint
 from time import sleep
 import requests as rq
-import utils
+import utils2
 import os
 
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user, login_fresh, fresh_login_required
@@ -278,7 +278,7 @@ def admin_only(func):
 ## Construct app routes
 @app.route("/")
 def home():
-	hnt = utils.get_oracle_price()
+	hnt = utils2.get_oracle_price()
 	print(hnt)
 
 	def other_miners(wallet_address):
@@ -305,7 +305,7 @@ def home():
 @app.route("/wallets")
 def wallets():
 	wallets = Wallet.query.all()
-	hnt = utils.get_oracle_price()
+	hnt = utils2.get_oracle_price()
 
 	def other_miners(wallet_address):
 		""" This function returns the count of miners for the tested wallet .
@@ -331,7 +331,7 @@ def wallets():
 
 @app.route("/latest")
 def latest_miners():
-	hnt = utils.get_oracle_price()
+	hnt = utils2.get_oracle_price()
 
 	def other_miners(wallet_address):
 		""" This function returns the count of miners for the tested wallet .
@@ -476,7 +476,7 @@ def price_chart():
 	prices = Prices.query.all()
 	tdy_avg = round(prices[-1].price,2)
 	print(tdy_avg)
-	hnt = utils.get_oracle_price()
+	hnt = utils2.get_oracle_price()
 
 	return render_template("prices.html", prices=prices, oracle_price=hnt, daily_avarage=tdy_avg)
 
